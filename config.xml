@@ -187,5 +187,5 @@
 
         <splash src="www/res/screen/windows/splashscreen.png" target="SplashScreen"/>
         <splash src="www/res/screen/windows/splashscreenphone.png" target="SplashScreenPhone"/>
-    </platform>
+    </platform> -->
 </widget>
