@@ -1,0 +1,37 @@
+	<ion-view view-title=" {{ faqs.snippet.title }}" hide-nav-bar="false" >
+		<!-- content -->
+		<ion-content delegate-handle="top"   id="page-faqs_singles" class="page-faqs_singles">
+		
+    
+<ion-refresher pulling-text="Pull to refresh..."  on-refresh="doRefresh()"></ion-refresher>
+<div class="list">
+
+	<div class="item item-title" ng-bind-html="faqs.snippet.title | to_trusted">
+    {{faqs.snippet.title}}
+    </div>
+    
+	<div class="item noborder" ng-if="faqs.snippet.resourceId.videoId" >
+        <div class="embed_container">
+            <iframe 
+                width="100%" 
+                ng-src="{{ 'https://www.youtube.com/embed/' + faqs.snippet.resourceId.videoId + '?enablejsapi=1' | trustUrl }}" 
+                frameborder="0" 
+                allowfullscreen>
+            </iframe>
+        </div>
+    </div>
+	<div class="item item-text-wrap noborder to_trusted" 
+        ng-bind-html="faqs.snippet.description | strHTML">
+    </div>
+    
+    <div class="item item-text-wrap text-center noborder">
+        <button class="button button-assertive">Open With Youtube App</button>
+    </div>
+    
+</div>
+
+    
+    
+		</ion-content>
+		<!-- ./content -->
+	</ion-view>

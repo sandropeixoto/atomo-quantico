@@ -1,0 +1,62 @@
+	<ion-view view-title=" Entrevistas com H&eacute;lio Couto" hide-nav-bar="false" >
+		<!-- content -->
+		<ion-content delegate-handle="top"  scroll="true"   id="page-faqs" class="page-faqs">
+		
+    
+<!-- code refresh -->
+<ion-refresher pulling-text="Pull to refresh..."  on-refresh="doRefresh()"></ion-refresher>
+<!-- ./code refresh -->
+
+
+<!-- code search -->
+<ion-list class="card list" >
+	<div class="item item-input">
+		<i class="icon ion-search placeholder-icon"></i>
+		<input type="search" ng-model="filter_faqss" placeholder="Search" aria-label="filter faqss" />
+	</div>
+</ion-list>
+<!-- ./code search -->
+    
+<!-- code listing -->
+
+<div class="list animate-none">
+
+    <div class="list card" ng-repeat="item in faqss | filter:filter_faqss as results" ng-init="$last ? fireEvent() : null"  >
+        
+        <div class="item item-colorful" ng-bind-html="item.snippet.title | to_trusted"></div>
+        
+        <div class="item item-thumbnail-left item-text-wrap">
+            <img alt="" class="full-image" ng-src="{{item.snippet.thumbnails.default.url}}" />
+            <p ng-bind-html="item.snippet.description | limitTo:75 | to_trusted"></p>
+        </div>
+        
+        <a class="item item-icon-left assertive" ng-href="#/atomo_quantico/faqs_singles/{{item.snippet.resourceId.videoId}}" >
+            <i class="icon ion-social-youtube"></i>
+            Start Watching...
+        </a>
+        
+	</div>
+</div>
+
+<!-- ./code listing -->   
+
+<!-- code infinite scroll -->
+<ion-list class="list">
+	<ion-infinite-scroll ng-if="!noMoreItemsAvailable" on-infinite="onInfinite()" distance="5px" ng-if="hasMoreData"></ion-infinite-scroll>
+</ion-list>
+<!-- ./code infinite scroll -->
+
+
+<!-- code search result not found -->
+<ion-list class="list">
+	<div class="item" ng-if="results.length == 0" >
+		<p>No results found...!</p>
+	</div>
+</ion-list>
+<!-- code search result not found -->
+
+    
+    
+		</ion-content>
+		<!-- ./content -->
+	</ion-view>

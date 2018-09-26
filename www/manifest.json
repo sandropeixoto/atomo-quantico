@@ -1,0 +1,18 @@
+
+        {
+          "name": "Atomo Quantico Lite",
+          "short_name": "Atomo Quantico",
+          "start_url": "index.html",
+          "display": "standalone",
+          "icons":[{"src": "data/images/icon/xxxhdpi.png"}],
+          "prefer_related_applications": true,
+          "related_applications": [
+            {
+              "platform": "play",
+              "id": "com.imabuilder.nanonetwork.atomoquantico"
+            }
+          ],
+         "background_color": "#ffffff",
+         "theme_color": "#000000"
+        }
+                
