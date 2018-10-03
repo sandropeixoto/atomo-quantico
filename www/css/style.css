@@ -249,7 +249,14 @@ ul.rating li i{color:#FFCC00}
 .dashboard-panel .row .col-33 i {font-size: 28px;margin-bottom: 2px;}
 .dashboard-panel a:link, .dashboard-panel a:visited{text-decoration: none;}
 .dashboard-panel .row .col-33 p {font-size: 12px;font-weight:500;white-space: nowrap;overflow: hidden;text-overflow: ellipsis;}              
-    
+    #menu-box-ee4c41024817636d9a69f15a37353478a1a42273 i:before{ content: url("../data/images/icon/if_number_1_green_1553102.png");}
+#menu-box-0061ac563a2a254aa778cb35f8da7c5b1d2c96f9 i:before{ content: url("../data/images/icon/if_number_2_green_1553086.png");}
+#menu-box-a5e8559246d7751a777783609f2d42c5afc239e6 i:before{ content: url("../data/images/icon/if_number_3_green_1553078.png");}
+#menu-box-5a01a5ede3a05978ce0421ce464112cd8affcb6b i:before{ content: url("../data/images/icon/if_resolutions-19_897233 (1).png");}
+#menu-box-0b6b4bd1edc3ced9d0df7dc965e0cc26e7bf61f3 i:before{ content: url("../data/images/icon/if_resolutions-16_897226.png");}
+#menu-box-ef5a56c67aca02a3afb225e29cf69e9340502274 i:before{ content: url("../data/images/icon/if_resolutions-04_897245 (1).png");}
+#menu-box-23930282a19c12022452febb031db23cb53c94bc i:before{ content: url("../data/images/icon/if_19_330401.png");}
+
 /** page entrevistas **/
 
 /** page faqs **/
