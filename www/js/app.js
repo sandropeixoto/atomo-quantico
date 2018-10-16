@@ -211,6 +211,7 @@ angular.module("atomo_quantico", ["ngCordova","ionic","ionMdInput","ionic-materi
 
 	.state("atomo_quantico.about_us", {
 		url: "/about_us",
+		cache:false,
 		views: {
 			"atomo_quantico-side_menus" : {
 						templateUrl:"templates/atomo_quantico-about_us.html",
@@ -224,6 +225,7 @@ angular.module("atomo_quantico", ["ngCordova","ionic","ionMdInput","ionic-materi
 
 	.state("atomo_quantico.dashboard", {
 		url: "/dashboard",
+		cache:false,
 		views: {
 			"atomo_quantico-side_menus" : {
 						templateUrl:"templates/atomo_quantico-dashboard.html",

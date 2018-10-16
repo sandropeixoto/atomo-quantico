@@ -244,7 +244,6 @@ ul.rating li i{color:#FFCC00}
 /** page about_us **/
 .about_us-box{background-color: rgba(255, 255, 255, 0.5);}.about_us-box .item{border-color: rgba(255, 255, 255, 0.5);border-left:0;border-right:0;}
 /** page dashboard **/
-
 .dashboard-panel .row .col-33 {text-decoration-line: unset;text-align: center;padding: 22px 20px 10px 20px;border:0;}
 .dashboard-panel .row .col-33 i {font-size: 28px;margin-bottom: 2px;}
 .dashboard-panel a:link, .dashboard-panel a:visited{text-decoration: none;}
