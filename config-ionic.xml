@@ -89,9 +89,12 @@
 	<plugin name="cordova-plugin-statusbar" />
 	<plugin name="ionic-plugin-keyboard" />
 	<!-- ./default -->
+	<plugin name="cordova-plugin-admob-free" />
+	<plugin name="cordova-admob-sdk" />
 	<plugin name="cordova-plugin-dialogs" />
 	<plugin name="cordova-plugin-inappbrowser" />
 	<plugin name="onesignal-cordova-plugin" />
+	<plugin name="cordova-promise-polyfill" />
 	<platform name="android">
 		<!-- splash and icon for build using ionic/cordova -->
 		<icon density="ldpi" src="resources/android/icon/drawable-ldpi-icon.png" />

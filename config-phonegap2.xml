@@ -1,5 +1,5 @@
 <?xml version='1.0' encoding='utf-8'?>
-<widget id="com.imabuilder.nanonetwork.atomoquantico" version="1.0.181004" xmlns="http://www.w3.org/ns/widgets" xmlns:cdv="http://cordova.apache.org/ns/1.0">
+<widget xmlns="http://www.w3.org/ns/widgets" xmlns:cdv="http://cordova.apache.org/ns/1.0" id="com.imabuilder.nanonetwork.atomoquantico" version="1.0.181016">
 	<name>Atomo Quantico</name>
 	<description>Fisica Quantica na veia</description>
 	<author email="atomoquantico@gmail.com" href="http://www.atomoquantico.com">Atomo Quantico</author>
@@ -89,9 +89,12 @@
 	<plugin name="cordova-plugin-statusbar" />
 	<plugin name="ionic-plugin-keyboard" />
 	<!-- ./default -->
-	<plugin name="cordova-plugin-dialogs" />
-	<plugin name="cordova-plugin-inappbrowser" />
-	<plugin name="onesignal-cordova-plugin" />
+	<plugin name="cordova-plugin-admob-free"/>
+	<plugin name="cordova-admob-sdk"/>
+	<plugin name="cordova-plugin-dialogs"/>
+	<plugin name="cordova-plugin-inappbrowser"/>
+	<plugin name="onesignal-cordova-plugin"/>
+	<plugin name="cordova-promise-polyfill"/>
     <platform name="ios">
         <icon src="www/res/icon/ios/icon-1024.png" width="1024" height="1024"/>
         <icon src="www/res/icon/ios/icon-small.png" width="29" height="29"/>
