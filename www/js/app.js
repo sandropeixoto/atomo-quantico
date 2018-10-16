@@ -35,8 +35,8 @@ angular.module("atomo_quantico", ["ngCordova","ionic","ionMdInput","ionic-materi
 			if (typeof admob !== "undefined"){
 				var admobid = {};
 				admobid = {
-					banner: "ca-app-pub-5635893757092615/6058765526",
-					interstitial: "ca-app-pub-5635893757092615/7085864594",
+					banner: "",
+					interstitial: "",
 					rewardvideo: ""
 				};
 				// banner

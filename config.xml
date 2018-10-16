@@ -89,12 +89,9 @@
 	<plugin name="cordova-plugin-statusbar" />
 	<plugin name="ionic-plugin-keyboard" />
 	<!-- ./default -->
-	<plugin name="cordova-plugin-admob-free"/>
-	<plugin name="cordova-admob-sdk"/>
-	<plugin name="cordova-plugin-dialogs"/>
-	<plugin name="cordova-plugin-inappbrowser"/>
-	<plugin name="onesignal-cordova-plugin"/>
-	<plugin name="cordova-promise-polyfill"/>
+	<plugin name="cordova-plugin-dialogs" />
+	<plugin name="cordova-plugin-inappbrowser" />
+	<plugin name="onesignal-cordova-plugin" />
     <platform name="ios">
         <icon src="www/res/icon/ios/icon-1024.png" width="1024" height="1024"/>
         <icon src="www/res/icon/ios/icon-small.png" width="29" height="29"/>
