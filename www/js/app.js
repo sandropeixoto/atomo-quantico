@@ -32,6 +32,22 @@ angular.module("atomo_quantico", ["ngCordova","ionic","ionMdInput","ionic-materi
 			}
 
 
+			//required: cordova plugin add onesignal-cordova-plugin --save
+			if(window.plugins && window.plugins.OneSignal){
+				window.plugins.OneSignal.enableNotificationsWhenActive(true);
+				var notificationOpenedCallback = function(jsonData){
+					try {
+						$timeout(function(){
+							$window.location = "#/atomo_quantico/" + jsonData.notification.payload.additionalData.page ;
+						},200);
+					} catch(e){
+						console.log("onesignal:" + e);
+					}
+				}
+				window.plugins.OneSignal.startInit("e8c2c921-1050-4aef-9652-9b58cca09b09").handleNotificationOpened(notificationOpenedCallback).endInit();
+			}
+
+
 		});
 		$ionicPlatform.registerBackButtonAction(function (e){
 			if($ionicHistory.backView()){

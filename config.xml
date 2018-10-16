@@ -91,6 +91,7 @@
 	<!-- ./default -->
 	<plugin name="cordova-plugin-dialogs" />
 	<plugin name="cordova-plugin-inappbrowser" />
+	<plugin name="onesignal-cordova-plugin" />
     <platform name="ios">
         <icon src="www/res/icon/ios/icon-1024.png" width="1024" height="1024"/>
         <icon src="www/res/icon/ios/icon-small.png" width="29" height="29"/>
