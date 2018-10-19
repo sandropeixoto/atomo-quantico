@@ -453,6 +453,7 @@ angular.module("atomo_quantico", ["ngCordova","ionic","ionMdInput","ionic-materi
 
 	.state("atomo_quantico.sobre", {
 		url: "/sobre",
+		cache:false,
 		views: {
 			"atomo_quantico-side_menus" : {
 						templateUrl:"templates/atomo_quantico-sobre.html",
