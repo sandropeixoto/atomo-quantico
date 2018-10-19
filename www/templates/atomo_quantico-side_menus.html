@@ -19,34 +19,16 @@
 		</ion-header-bar>
 		<ion-content class="has-expanded-header stable-bg dark">
 			<ion-list class="list" >
-				<ion-item  class="menu-dashboard item-sidebar item item-icon-left text-left dark-ink" nav-clear="" menu-close="" ui-sref="atomo_quantico.dashboard">
+				<ion-item  class="menu-principal item-sidebar item item-icon-left text-left dark-ink" nav-clear="" menu-close="" ui-sref="atomo_quantico.principal">
 					<i class="icon ion-ios-home"></i> {{ "Principal" | translate }}
 				</ion-item>
-				<ion-item  class="menu-videos1 item-sidebar item item-icon-left text-left dark-ink" nav-clear="" menu-close="" ui-sref="atomo_quantico.videos1">
-					<i class="icon ion-android-film"></i> {{ "Vídeos I" | translate }}
+				<ion-item  class="menu-grupo_whatsapp item-sidebar item item-icon-left text-left dark-ink" nav-clear="" menu-close="" ng-click="openURL('https://chat.whatsapp.com/invite/9OFtwoeHCniGmigqg1BE0Y')">
+					<i class="icon ion-android-film"></i> {{ "Grupo WhatsApp" | translate }}
 				</ion-item>
-				<ion-item  class="menu-videos2 item-sidebar item item-icon-left text-left dark-ink" nav-clear="" menu-close="" ui-sref="atomo_quantico.videos2">
-					<i class="icon ion-android-film"></i> {{ "Vídeos II" | translate }}
+				<ion-item  class="menu-canal_youtube item-sidebar item item-icon-left text-left dark-ink" nav-clear="" menu-close="" ng-click="openURL('http://www.youtube.com/c/AtomoQuantico')">
+					<i class="icon ion-android-film"></i> {{ "Canal YouTube" | translate }}
 				</ion-item>
-				<ion-item  class="menu-videos3 item-sidebar item item-icon-left text-left dark-ink" nav-clear="" menu-close="" ui-sref="atomo_quantico.videos3">
-					<i class="icon ion-android-film"></i> {{ "Vídeos III" | translate }}
-				</ion-item>
-				<ion-item class="item item-divider text-left" >
-					 {{ "Séries" | translate }}
-				</ion-item>
-				<ion-item  class="menu-entrevistas item-sidebar item item-icon-left text-left dark-ink" nav-clear="" menu-close="" ui-sref="atomo_quantico.entrevistas">
-					<i class="icon ion-android-contacts"></i> {{ "Entrevistas" | translate }}
-				</ion-item>
-				<ion-item  class="menu-prosperidade item-sidebar item item-icon-left text-left dark-ink" nav-clear="" menu-close="" ui-sref="atomo_quantico.prosperidade">
-					<i class="icon ion-android-bulb"></i> {{ "Prosperidade" | translate }}
-				</ion-item>
-				<ion-item  class="menu-minutos item-sidebar item item-icon-left text-left dark-ink" nav-clear="" menu-close="" ui-sref="atomo_quantico.minutos">
-					<i class="icon ion-android-alarm-clock"></i> {{ "Minutos" | translate }}
-				</ion-item>
-				<ion-item class="item item-divider text-left" >
-					 {{ "Mais" | translate }}
-				</ion-item>
-				<ion-item  class="menu-about_us item-sidebar item item-icon-left text-left dark-ink" nav-clear="" menu-close="" ui-sref="atomo_quantico.about_us">
+				<ion-item  class="menu-sobre item-sidebar item item-icon-left text-left dark-ink" nav-clear="" menu-close="" ui-sref="atomo_quantico.sobre">
 					<i class="icon ion-android-alert"></i> {{ "Sobre" | translate }}
 				</ion-item>
 			</ion-list>

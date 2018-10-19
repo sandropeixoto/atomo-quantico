@@ -239,41 +239,51 @@ ul.rating li i{color:#FFCC00}
 .menu .bar.bar-header.expanded img{margin:auto;left:16px;right:16px;}
 
 /** option page **/
-#page-about_us{background: url("../data/images/background/bg8.jpg") no-repeat left top fixed;background-size: cover;width:100%;height:100%;background-repeat:no-repeat;}
-#page-dashboard{background: url("../data/images/background/transparent.png") no-repeat left top fixed;background-size: cover;width:100%;height:100%;background-repeat:no-repeat;}
-/** page about_us **/
-.about_us-box{background-color: rgba(255, 255, 255, 0.5);}.about_us-box .item{border-color: rgba(255, 255, 255, 0.5);border-left:0;border-right:0;}
+#page-dashboard{background: url("../data/images/background/bg0.jpg") no-repeat left top fixed;background-size: cover;width:100%;height:100%;background-repeat:no-repeat;}
+#page-sobre{background: url("../data/images/background/bg6.jpg") no-repeat left top fixed;background-size: cover;width:100%;height:100%;background-repeat:no-repeat;}
+/** page aplicacoes_prticas **/
+
+/** page aplicacoes_prticas_singles **/
+.embed_container {background: #000;}
+/** page curso_de_mq_e_rh **/
+
+/** page curso_de_mq_e_rh_singles **/
+.embed_container {background: #000;}
 /** page dashboard **/
+
 .dashboard-panel .row .col-33 {text-decoration-line: unset;text-align: center;padding: 22px 20px 10px 20px;border:0;}
 .dashboard-panel .row .col-33 i {font-size: 28px;margin-bottom: 2px;}
 .dashboard-panel a:link, .dashboard-panel a:visited{text-decoration: none;}
-.dashboard-panel .row .col-33 p {font-size: 12px;font-weight:500;white-space: nowrap;overflow: hidden;text-overflow: ellipsis;}              
-    #menu-box-ee4c41024817636d9a69f15a37353478a1a42273 i:before{ content: url("../data/images/icon/if_number_1_green_1553102.png");}
-#menu-box-0061ac563a2a254aa778cb35f8da7c5b1d2c96f9 i:before{ content: url("../data/images/icon/if_number_2_green_1553086.png");}
-#menu-box-a5e8559246d7751a777783609f2d42c5afc239e6 i:before{ content: url("../data/images/icon/if_number_3_green_1553078.png");}
-#menu-box-5a01a5ede3a05978ce0421ce464112cd8affcb6b i:before{ content: url("../data/images/icon/if_resolutions-19_897233 (1).png");}
-#menu-box-0b6b4bd1edc3ced9d0df7dc965e0cc26e7bf61f3 i:before{ content: url("../data/images/icon/if_resolutions-16_897226.png");}
-#menu-box-ef5a56c67aca02a3afb225e29cf69e9340502274 i:before{ content: url("../data/images/icon/if_resolutions-04_897245 (1).png");}
-#menu-box-23930282a19c12022452febb031db23cb53c94bc i:before{ content: url("../data/images/icon/if_19_330401.png");}
-
+.dashboard-panel .row .col-33 p {font-size: 12px;font-weight:500;white-space: nowrap;overflow: hidden;text-overflow: ellipsis;}             
+            
 /** page entrevistas **/
 
-/** page faqs **/
-
-/** page faqs_singles **/
+/** page entrevistas_singles **/
 .embed_container {background: #000;}
 /** page minutos **/
 
 /** page minutos_singles **/
 .embed_container {background: #000;}
+/** page principal **/
+
 /** page prosperidade **/
 
+/** page prosperidade_singles **/
+.embed_container {background: #000;}
 /** page slide_tab_menu **/
 
-/** page videos1 **/
+/** page sobre **/
+.sobre-box{background-color: rgba(255, 255, 255, 0.5);}.sobre-box .item{border-color: rgba(255, 255, 255, 0.5);border-left:0;border-right:0;}
+/** page vdeos_ii **/
 
-/** page videos2 **/
+/** page vdeos_ii_singles **/
+.embed_container {background: #000;}
+/** page videos_i **/
 
-/** page videos3 **/
+/** page videos_i_singles **/
+.embed_container {background: #000;}
+/** page videos_iii **/
 
+/** page videos_iii_singles **/
+.embed_container {background: #000;}
 /** custom css **/

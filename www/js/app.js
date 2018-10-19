@@ -6,6 +6,17 @@ angular.module("atomo_quantico", ["ngCordova","ionic","ionMdInput","ionic-materi
 		$rootScope.appVersion = "1.0" ;
 		$rootScope.headerShrink = false ;
 
+		$rootScope.liveStatus = "pause" ;
+		$ionicPlatform.ready(function(){
+			$rootScope.liveStatus = "run" ;
+		});
+		$ionicPlatform.on("pause",function(){
+			$rootScope.liveStatus = "pause" ;
+		});
+		$ionicPlatform.on("resume",function(){
+			$rootScope.liveStatus = "run" ;
+		});
+
 		$ionicPlatform.ready(function() {
 
 			localforage.config({
@@ -37,20 +48,37 @@ angular.module("atomo_quantico", ["ngCordova","ionic","ionMdInput","ionic-materi
 				admobid = {
 					banner: "",
 					interstitial: "",
-					rewardvideo: ""
 				};
+				
 				// banner
-				admob.banner.config({
-					id: admobid.banner,
+				try{
+					admob.banner.config({
+						id: admobid.banner,
+						autoShow: false
+					});
+					admob.banner.prepare();
+				}catch(err){ 
+					//alert(err.message);
+				}
+				
+				$ionicPlatform.on("pause",function(){
+					try{
+						admob.banner.hide();
+					}catch(err){ 
+						//alert(err.message);
+					}
 				});
+				
 				// interstitial
-				admob.interstitial.config({
-					id: admobid.interstitial,
-				});
-				// rewardvideo
-				admob.rewardvideo.config({
-					id: admobid.rewardvideo,
-				});
+				try{
+					admob.interstitial.config({
+						id: admobid.interstitial,
+						autoShow: false
+					});
+					admob.interstitial.prepare();
+				}catch(err){ 
+					//alert(err.message);
+				}
 			}
 
 
@@ -75,7 +103,7 @@ angular.module("atomo_quantico", ["ngCordova","ionic","ionMdInput","ionic-materi
 			if($ionicHistory.backView()){
 				$ionicHistory.goBack();
 			}else{
-				$state.go("atomo_quantico.dashboard");
+				$state.go("atomo_quantico.principal");
 			}
 			e.preventDefault();
 			return false;
@@ -233,7 +261,6 @@ angular.module("atomo_quantico", ["ngCordova","ionic","ionMdInput","ionic-materi
 
 	.state("atomo_quantico.about_us", {
 		url: "/about_us",
-		cache:false,
 		views: {
 			"atomo_quantico-side_menus" : {
 						templateUrl:"templates/atomo_quantico-about_us.html",
@@ -245,9 +272,64 @@ angular.module("atomo_quantico", ["ngCordova","ionic","ionMdInput","ionic-materi
 		}
 	})
 
+	.state("atomo_quantico.aplicacoes_prticas", {
+		url: "/aplicacoes_prticas",
+		cache:false,
+		views: {
+			"atomo_quantico-side_menus" : {
+						templateUrl:"templates/atomo_quantico-aplicacoes_prticas.html",
+						controller: "aplicacoes_prticasCtrl"
+					},
+			"fabButtonUp" : {
+						template: '',
+					},
+		}
+	})
+
+	.state("atomo_quantico.aplicacoes_prticas_singles", {
+		url: "/aplicacoes_prticas_singles/:snippetresourceIdvideoId",
+		cache:false,
+		views: {
+			"atomo_quantico-side_menus" : {
+						templateUrl:"templates/atomo_quantico-aplicacoes_prticas_singles.html",
+						controller: "aplicacoes_prticas_singlesCtrl"
+					},
+			"fabButtonUp" : {
+						template: '',
+					},
+		}
+	})
+
+	.state("atomo_quantico.curso_de_mq_e_rh", {
+		url: "/curso_de_mq_e_rh",
+		cache:false,
+		views: {
+			"atomo_quantico-side_menus" : {
+						templateUrl:"templates/atomo_quantico-curso_de_mq_e_rh.html",
+						controller: "curso_de_mq_e_rhCtrl"
+					},
+			"fabButtonUp" : {
+						template: '',
+					},
+		}
+	})
+
+	.state("atomo_quantico.curso_de_mq_e_rh_singles", {
+		url: "/curso_de_mq_e_rh_singles/:snippetresourceIdvideoId",
+		cache:false,
+		views: {
+			"atomo_quantico-side_menus" : {
+						templateUrl:"templates/atomo_quantico-curso_de_mq_e_rh_singles.html",
+						controller: "curso_de_mq_e_rh_singlesCtrl"
+					},
+			"fabButtonUp" : {
+						template: '',
+					},
+		}
+	})
+
 	.state("atomo_quantico.dashboard", {
 		url: "/dashboard",
-		cache:false,
 		views: {
 			"atomo_quantico-side_menus" : {
 						templateUrl:"templates/atomo_quantico-dashboard.html",
@@ -273,53 +355,13 @@ angular.module("atomo_quantico", ["ngCordova","ionic","ionMdInput","ionic-materi
 		}
 	})
 
-	.state("atomo_quantico.faqs", {
-		url: "/faqs",
+	.state("atomo_quantico.entrevistas_singles", {
+		url: "/entrevistas_singles/:snippetresourceIdvideoId",
 		cache:false,
 		views: {
 			"atomo_quantico-side_menus" : {
-						templateUrl:"templates/atomo_quantico-faqs.html",
-						controller: "faqsCtrl"
-					},
-			"fabButtonUp" : {
-						template: '',
-					},
-		}
-	})
-
-	.state("atomo_quantico.faqs_singles", {
-		url: "/faqs_singles/:snippetresourceIdvideoId",
-		cache:false,
-		views: {
-			"atomo_quantico-side_menus" : {
-						templateUrl:"templates/atomo_quantico-faqs_singles.html",
-						controller: "faqs_singlesCtrl"
-					},
-			"fabButtonUp" : {
-						template: '',
-					},
-		}
-	})
-
-	.state("atomo_quantico.menu_one", {
-		url: "/menu_one",
-		views: {
-			"atomo_quantico-side_menus" : {
-						templateUrl:"templates/atomo_quantico-menu_one.html",
-						controller: "menu_oneCtrl"
-					},
-			"fabButtonUp" : {
-						template: '',
-					},
-		}
-	})
-
-	.state("atomo_quantico.menu_two", {
-		url: "/menu_two",
-		views: {
-			"atomo_quantico-side_menus" : {
-						templateUrl:"templates/atomo_quantico-menu_two.html",
-						controller: "menu_twoCtrl"
+						templateUrl:"templates/atomo_quantico-entrevistas_singles.html",
+						controller: "entrevistas_singlesCtrl"
 					},
 			"fabButtonUp" : {
 						template: '',
@@ -355,6 +397,19 @@ angular.module("atomo_quantico", ["ngCordova","ionic","ionMdInput","ionic-materi
 		}
 	})
 
+	.state("atomo_quantico.principal", {
+		url: "/principal",
+		views: {
+			"atomo_quantico-side_menus" : {
+						templateUrl:"templates/atomo_quantico-principal.html",
+						controller: "principalCtrl"
+					},
+			"fabButtonUp" : {
+						template: '',
+					},
+		}
+	})
+
 	.state("atomo_quantico.prosperidade", {
 		url: "/prosperidade",
 		cache:false,
@@ -362,6 +417,20 @@ angular.module("atomo_quantico", ["ngCordova","ionic","ionMdInput","ionic-materi
 			"atomo_quantico-side_menus" : {
 						templateUrl:"templates/atomo_quantico-prosperidade.html",
 						controller: "prosperidadeCtrl"
+					},
+			"fabButtonUp" : {
+						template: '',
+					},
+		}
+	})
+
+	.state("atomo_quantico.prosperidade_singles", {
+		url: "/prosperidade_singles/:snippetresourceIdvideoId",
+		cache:false,
+		views: {
+			"atomo_quantico-side_menus" : {
+						templateUrl:"templates/atomo_quantico-prosperidade_singles.html",
+						controller: "prosperidade_singlesCtrl"
 					},
 			"fabButtonUp" : {
 						template: '',
@@ -395,13 +464,27 @@ angular.module("atomo_quantico", ["ngCordova","ionic","ionMdInput","ionic-materi
 		}
 	})
 
-	.state("atomo_quantico.videos1", {
-		url: "/videos1",
+	.state("atomo_quantico.vdeos_ii", {
+		url: "/vdeos_ii",
 		cache:false,
 		views: {
 			"atomo_quantico-side_menus" : {
-						templateUrl:"templates/atomo_quantico-videos1.html",
-						controller: "videos1Ctrl"
+						templateUrl:"templates/atomo_quantico-vdeos_ii.html",
+						controller: "vdeos_iiCtrl"
+					},
+			"fabButtonUp" : {
+						template: '',
+					},
+		}
+	})
+
+	.state("atomo_quantico.vdeos_ii_singles", {
+		url: "/vdeos_ii_singles/:snippetresourceIdvideoId",
+		cache:false,
+		views: {
+			"atomo_quantico-side_menus" : {
+						templateUrl:"templates/atomo_quantico-vdeos_ii_singles.html",
+						controller: "vdeos_ii_singlesCtrl"
 					},
 			"fabButtonUp" : {
 						template: '',
@@ -411,7 +494,6 @@ angular.module("atomo_quantico", ["ngCordova","ionic","ionMdInput","ionic-materi
 
 	.state("atomo_quantico.videos2", {
 		url: "/videos2",
-		cache:false,
 		views: {
 			"atomo_quantico-side_menus" : {
 						templateUrl:"templates/atomo_quantico-videos2.html",
@@ -425,7 +507,6 @@ angular.module("atomo_quantico", ["ngCordova","ionic","ionMdInput","ionic-materi
 
 	.state("atomo_quantico.videos3", {
 		url: "/videos3",
-		cache:false,
 		views: {
 			"atomo_quantico-side_menus" : {
 						templateUrl:"templates/atomo_quantico-videos3.html",
@@ -437,5 +518,61 @@ angular.module("atomo_quantico", ["ngCordova","ionic","ionMdInput","ionic-materi
 		}
 	})
 
-	$urlRouterProvider.otherwise("/atomo_quantico/dashboard");
+	.state("atomo_quantico.videos_i", {
+		url: "/videos_i",
+		cache:false,
+		views: {
+			"atomo_quantico-side_menus" : {
+						templateUrl:"templates/atomo_quantico-videos_i.html",
+						controller: "videos_iCtrl"
+					},
+			"fabButtonUp" : {
+						template: '',
+					},
+		}
+	})
+
+	.state("atomo_quantico.videos_i_singles", {
+		url: "/videos_i_singles/:snippetresourceIdvideoId",
+		cache:false,
+		views: {
+			"atomo_quantico-side_menus" : {
+						templateUrl:"templates/atomo_quantico-videos_i_singles.html",
+						controller: "videos_i_singlesCtrl"
+					},
+			"fabButtonUp" : {
+						template: '',
+					},
+		}
+	})
+
+	.state("atomo_quantico.videos_iii", {
+		url: "/videos_iii",
+		cache:false,
+		views: {
+			"atomo_quantico-side_menus" : {
+						templateUrl:"templates/atomo_quantico-videos_iii.html",
+						controller: "videos_iiiCtrl"
+					},
+			"fabButtonUp" : {
+						template: '',
+					},
+		}
+	})
+
+	.state("atomo_quantico.videos_iii_singles", {
+		url: "/videos_iii_singles/:snippetresourceIdvideoId",
+		cache:false,
+		views: {
+			"atomo_quantico-side_menus" : {
+						templateUrl:"templates/atomo_quantico-videos_iii_singles.html",
+						controller: "videos_iii_singlesCtrl"
+					},
+			"fabButtonUp" : {
+						template: '',
+					},
+		}
+	})
+
+	$urlRouterProvider.otherwise("/atomo_quantico/principal");
 });

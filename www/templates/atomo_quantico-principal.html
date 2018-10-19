@@ -1,0 +1,110 @@
+	<ion-view view-title=" &amp;Aacute;tomo Qu&amp;acirc;ntico" hide-nav-bar="false" >
+		<!-- content -->
+		<ion-content delegate-handle="top"   id="page-principal" class="principal page-principal">
+		
+	<div class="slide-box-hero">
+		<ion-slides class="slide-box-hero-content" options="{slidesPerView:1,autoplay:10000,loop:1}" slider="data.slider">
+			<ion-slide-page>
+				<img ng-src="data/images/images/banner1.jpg" class="" />
+			</ion-slide-page>
+			<ion-slide-page>
+				<img ng-src="data/images/images/banner2.jpg" class="" />
+			</ion-slide-page>
+			<ion-slide-page>
+				<img ng-src="data/images/images/banner3.jpg" class="" />
+			</ion-slide-page>
+			<ion-slide-page>
+				<img ng-src="data/images/images/banner4.jpg" class="" />
+			</ion-slide-page>
+		</ion-slides>
+	</div>
+	<div style="width: 100%;height:200%;">
+		<ion-slide-box class="ion-slide-tabs" slide-tabs-scrollable="false" show-pager="false" ion-slide-tabs>
+			<ion-slide ion-slide-tab-label="Principal" >
+					<ion-content scroll="false" class="slidingTabContent">
+						<div class="list">
+							<a class="item item-icon-left" ng-href="#/atomo_quantico/videos_i" >
+								<i class="icon ion-android-film" ></i>
+								<h2>V&iacute;deos I</h2>
+								<span class="item-note pull-left">Comece seu estudo por aqui</span>
+							</a>
+							<a class="item item-icon-left" ng-href="#/atomo_quantico/vdeos_ii" >
+								<i class="icon ion-android-film" ></i>
+								<h2>V&iacute;deos II</h2>
+								<span class="item-note pull-left">Continua&ccedil;&atilde;o dos estudos</span>
+							</a>
+							<a class="item item-icon-left" ng-href="#/atomo_quantico/videos_iii" >
+								<i class="icon ion-android-film" ></i>
+								<h2>V&iacute;deos III</h2>
+								<span class="item-note pull-left">Para quem j&aacute; pode ouvir algo a mais</span>
+							</a>
+							<a class="item item-icon-left" ng-href="#/atomo_quantico/entrevistas" >
+								<i class="icon ion-mic-b" ></i>
+								<h2>S&eacute;rie Entrevistas</h2>
+								<span class="item-note pull-left">Perguntas com  respostas reveladoras</span>
+							</a>
+							<a class="item item-icon-left" ng-href="#/atomo_quantico/prosperidade" >
+								<i class="icon ion-cash" ></i>
+								<h2>S&eacute;rie Prosperidade</h2>
+								<span class="item-note pull-left">Conhecimento para gerar prosperidade</span>
+							</a>
+							<a class="item item-icon-left" ng-href="#/atomo_quantico/minutos" >
+								<i class="icon ion-android-alarm-clock" ></i>
+								<h2>Minutos com H&eacute;lio Couto</h2>
+								<span class="item-note pull-left">Pequenas doses de sabedoria</span>
+							</a>
+							<a class="item item-icon-left" ng-href="#/atomo_quantico/curso_de_mq_e_rh" >
+								<i class="icon ion-android-desktop" ></i>
+								<h2>Curso de Mec&acirc;nica Qu&acirc;ntica e RH</h2>
+								<span class="item-note pull-left">Para quem quer se aprofundar</span>
+							</a>
+							<a class="item item-icon-left" ng-href="#/atomo_quantico/aplicacoes_prticas" >
+								<i class="icon ion-erlenmeyer-flask-bubbles" ></i>
+								<h2>Curso Aplica&ccedil;&otilde;es Pr&aacute;ticas</h2>
+								<span class="item-note pull-left">Para quem quer praticar</span>
+							</a>
+						</div>
+					</ion-content>
+			</ion-slide>
+			<ion-slide ion-slide-tab-label="Mais" >
+					<ion-content scroll="false" class="slidingTabContent">
+						<div class="list">
+							<a class="item item-icon-left" ng-click="openURL('https://www.heliocouto.com/')" >
+								<i class="icon ion-android-contact" ></i>
+								<h2>H&eacute;lio Couto</h2>
+								<span class="item-note pull-left">Site oficial do professor H&eacute;lio Couto</span>
+							</a>
+							<a class="item item-icon-left" ng-click="openURL('http://www.igrejacristadeaton.org.br/')" >
+								<i class="icon ion-android-sunny" ></i>
+								<h2>ICA</h2>
+								<span class="item-note pull-left">Igreja Crist&atilde; de Aton</span>
+							</a>
+							<a class="item item-icon-left" ng-click="openURL('http://www.cursosheliocouto.com.br/')" >
+								<i class="icon ion-android-desktop" ></i>
+								<h2>Cursos H&eacute;lio Couto</h2>
+								<span class="item-note pull-left">Plataforma EAD do Prof. H&eacute;lio Couto</span>
+							</a>
+							<a class="item item-icon-left" ng-click="openURL('https://chat.whatsapp.com/invite/9OFtwoeHCniGmigqg1BE0Y')" >
+								<i class="icon ion-social-whatsapp-outline" ></i>
+								<h2>WhatsApp</h2>
+								<span class="item-note pull-left">Grupo de WhatsApp do &Aacute;tomo Qu&acirc;ntico</span>
+							</a>
+							<a class="item item-icon-left" ng-click="openURL('http://www.youtube.com/c/AtomoQuantico')" >
+								<i class="icon ion-social-youtube" ></i>
+								<h2>Canal &Aacute;tomo Qu&acirc;ntico</h2>
+								<span class="item-note pull-left">Canal &Aacute;tomo Qu&acirc;ntico no Youtube</span>
+							</a>
+							<a class="item item-icon-left" ng-href="#/atomo_quantico/sobre" >
+								<i class="icon ion-android-alert" ></i>
+								<h2>Sobre</h2>
+								<span class="item-note pull-left">Sobre este aplicativo</span>
+							</a>
+						</div>
+					</ion-content>
+			</ion-slide>
+		</ion-slide-box>
+	</div>
+
+		</ion-content>
+		<!-- ./content -->
+	</ion-view>
