@@ -68,10 +68,10 @@
 
 
   <!-- Android only -->
-  <preference name="android-build-tool" value="ant|gradle" />
-  <preference name="android-minSdkVersion" value="16" />
-  <preference name="android-installLocation" value="auto" />
-  <preference name="android-windowSoftInputMode" value="stateVisible|adjustResize" />
+  <!-- <preference name="android-build-tool" value="ant|gradle" /> -->
+  <preference name="android-minSdkVersion" value="15" />
+ <preference name="android-installLocation" value="auto" />
+  <!--  <preference name="android-windowSoftInputMode" value="stateVisible|adjustResize" /> -->
 
 
 	<preference name="BackupWebStorage" value="none"/>
