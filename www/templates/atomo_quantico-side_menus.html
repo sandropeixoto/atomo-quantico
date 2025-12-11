@@ -5,31 +5,48 @@
 			<ion-nav-buttons side="left">
 				<button class="button button-icon button-clear ion-navicon" menu-toggle="left"></button>
 			</ion-nav-buttons>
+			<!--
 			<ion-nav-buttons side="right">
 				<button class="button button-icon button-clear ion-android-more-vertical" id="menu-popover" ng-click="popover.show($event)"></button>
 			</ion-nav-buttons>
+			-->
 		</ion-nav-bar>
 		<ion-nav-view name="fabButtonUp"></ion-nav-view>
 		<ion-nav-view animation="none" name="atomo_quantico-side_menus"></ion-nav-view>
 	</ion-side-menu-content>
 	<ion-side-menu side="left">
 		<ion-header-bar class="text-center expanded positive-900-bg">
-			<img ng-src="{{ appLogo | trustUrl }}" class="avatar motion spin fade" />
+			<img ng-src="{{ appLogo | trustUrl }}" class="avatar" />
 			<div class="menu-bottom"><span ng-bind-html="appName | strHTML"></span><br/></div>
 		</ion-header-bar>
 		<ion-content class="has-expanded-header stable-bg dark">
 			<ion-list class="list" >
-				<ion-item  class="menu-principal item-sidebar item item-icon-left text-left dark-ink" nav-clear="" menu-close="" ui-sref="atomo_quantico.principal">
-					<i class="icon ion-ios-home"></i> {{ "Principal" | translate }}
+				<ion-item  class="item-sidebar item item-icon-left text-left dark-ink" nav-clear="" menu-close="" ui-sref="atomo_quantico.dashboard">
+					<i class="icon ion-ios-home"></i> Dashboard
 				</ion-item>
-				<ion-item  class="menu-grupo_whatsapp item-sidebar item item-icon-left text-left dark-ink" nav-clear="" menu-close="" ng-click="openURL('https://chat.whatsapp.com/invite/9OFtwoeHCniGmigqg1BE0Y')">
-					<i class="icon ion-android-film"></i> {{ "Grupo WhatsApp" | translate }}
+
+				<ion-item  class="item-sidebar item item-icon-left text-left dark-ink" nav-clear="" menu-close="" ui-sref="atomo_quantico.horoscopo">
+					<i class="icon ion-planet"></i> Horóscopo
 				</ion-item>
-				<ion-item  class="menu-canal_youtube item-sidebar item item-icon-left text-left dark-ink" nav-clear="" menu-close="" ng-click="openURL('http://www.youtube.com/c/AtomoQuantico')">
-					<i class="icon ion-android-film"></i> {{ "Canal YouTube" | translate }}
+
+				<ion-item  class="item-sidebar item item-icon-left text-left dark-ink" nav-clear="" menu-close="" ui-sref="atomo_quantico.mensagens">
+					<i class="icon ion-quote"></i> Mensagens Edificantes
 				</ion-item>
-				<ion-item  class="menu-sobre item-sidebar item item-icon-left text-left dark-ink" nav-clear="" menu-close="" ui-sref="atomo_quantico.sobre">
-					<i class="icon ion-android-alert"></i> {{ "Sobre" | translate }}
+
+				<ion-item  class="item-sidebar item item-icon-left text-left dark-ink" nav-clear="" menu-close="" ui-sref="atomo_quantico.chat">
+					<i class="icon ion-chatbubbles"></i> Chat Privado
+				</ion-item>
+
+				<ion-item  class="item-sidebar item item-icon-left text-left dark-ink" nav-clear="" menu-close="" ui-sref="atomo_quantico.agradecimentos">
+					<i class="icon ion-heart"></i> Feed de Agradecimento
+				</ion-item>
+
+				<ion-item  class="item-sidebar item item-icon-left text-left dark-ink" nav-clear="" menu-close="" ui-sref="atomo_quantico.postagens">
+					<i class="icon ion-ios-paper"></i> Feed de Postagens
+				</ion-item>
+
+				<ion-item  class="item-sidebar item item-icon-left text-left dark-ink" nav-clear="" menu-close="" ui-sref="atomo_quantico.sobre">
+					<i class="icon ion-android-alert"></i> Sobre
 				</ion-item>
 			</ion-list>
 		</ion-content>

@@ -41,69 +41,12 @@ angular.module("atomo_quantico", ["ngCordova","ionic","ionMdInput","ionic-materi
 			if(window.StatusBar) {
 				StatusBar.styleDefault();
 			}
-			// this will create a banner on startup
-			//required: cordova plugin add cordova-plugin-admob-free --save
-			if (typeof admob !== "undefined"){
-				var admobid = {};
-				admobid = {
-					banner: "",
-					interstitial: "",
-				};
-				
-				// banner
-				try{
-					admob.banner.config({
-						id: admobid.banner,
-						autoShow: false
-					});
-					admob.banner.prepare();
-				}catch(err){ 
-					//alert(err.message);
-				}
-				
-				$ionicPlatform.on("pause",function(){
-					try{
-						admob.banner.hide();
-					}catch(err){ 
-						//alert(err.message);
-					}
-				});
-				
-				// interstitial
-				try{
-					admob.interstitial.config({
-						id: admobid.interstitial,
-						autoShow: false
-					});
-					admob.interstitial.prepare();
-				}catch(err){ 
-					//alert(err.message);
-				}
-			}
-
-
-			//required: cordova plugin add onesignal-cordova-plugin --save
-			if(window.plugins && window.plugins.OneSignal){
-				window.plugins.OneSignal.enableNotificationsWhenActive(true);
-				var notificationOpenedCallback = function(jsonData){
-					try {
-						$timeout(function(){
-							$window.location = "#/atomo_quantico/" + jsonData.notification.payload.additionalData.page ;
-						},200);
-					} catch(e){
-						console.log("onesignal:" + e);
-					}
-				}
-				window.plugins.OneSignal.startInit("e8c2c921-1050-4aef-9652-9b58cca09b09").handleNotificationOpened(notificationOpenedCallback).endInit();
-			}
-
-
 		});
 		$ionicPlatform.registerBackButtonAction(function (e){
 			if($ionicHistory.backView()){
 				$ionicHistory.goBack();
 			}else{
-				$state.go("atomo_quantico.principal");
+				$state.go("atomo_quantico.dashboard");
 			}
 			e.preventDefault();
 			return false;
@@ -129,100 +72,11 @@ angular.module("atomo_quantico", ["ngCordova","ionic","ionMdInput","ionic-materi
 		};
 	}])
 
-	.filter("strExplode", function() {
-		return function($string,$delimiter) {
-			if(!$string.length ) return;
-			var $_delimiter = $delimiter || "|";
-			return $string.split($_delimiter);
-		};
-	})
-
-	.filter("strDate", function(){
-		return function (input) {
-			return new Date(input);
-		}
-	})
-	.filter("phpTime", function(){
-		return function (input) {
-			var timeStamp = parseInt(input) * 1000;
-			return timeStamp ;
-		}
-	})
-	.filter("strHTML", ["$sce", function($sce){
+    .filter("strHTML", ["$sce", function($sce){
 		return function(text) {
 			return $sce.trustAsHtml(text);
 		};
 	}])
-	.filter("strEscape",function(){
-		return window.encodeURIComponent;
-	})
-	.filter("strUnscape", ["$sce", function($sce) {
-		var div = document.createElement("div");
-		return function(text) {
-			div.innerHTML = text;
-			return $sce.trustAsHtml(div.textContent);
-		};
-	}])
-
-	.filter("stripTags", ["$sce", function($sce){
-		return function(text) {
-			return text.replace(/(<([^>]+)>)/ig,"");
-		};
-	}])
-
-	.filter("chartData", function(){
-		return function (obj) {
-			var new_items = [];
-			angular.forEach(obj, function(child) {
-				var new_item = [];
-				var indeks = 0;
-				angular.forEach(child, function(v){
-						if ((indeks !== 0) && (indeks !== 1)){
-							new_item.push(v);
-						}
-						indeks++;
-					});
-					new_items.push(new_item);
-				});
-			return new_items;
-		}
-	})
-
-	.filter("chartLabels", function(){
-		return function (obj){
-			var new_item = [];
-			angular.forEach(obj, function(child) {
-			var indeks = 0;
-			new_item = [];
-			angular.forEach(child, function(v,l) {
-				if ((indeks !== 0) && (indeks !== 1)) {
-					new_item.push(l);
-				}
-				indeks++;
-			});
-			});
-			return new_item;
-		}
-	})
-	.filter("chartSeries", function(){
-		return function (obj) {
-			var new_items = [];
-			angular.forEach(obj, function(child) {
-				var new_item = [];
-				var indeks = 0;
-				angular.forEach(child, function(v){
-						if (indeks === 1){
-							new_item.push(v);
-						}
-						indeks++;
-					});
-					new_items.push(new_item);
-				});
-			return new_items;
-		}
-	})
-
-
 
 .config(["$translateProvider", function ($translateProvider){
 	$translateProvider.preferredLanguage("pt-br");
@@ -259,321 +113,86 @@ angular.module("atomo_quantico", ["ngCordova","ionic","ionMdInput","ionic-materi
 			controller: "side_menusCtrl",
 	})
 
-	.state("atomo_quantico.about_us", {
-		url: "/about_us",
-		views: {
-			"atomo_quantico-side_menus" : {
-						templateUrl:"templates/atomo_quantico-about_us.html",
-						controller: "about_usCtrl"
-					},
-			"fabButtonUp" : {
-						template: '',
-					},
-		}
-	})
-
-	.state("atomo_quantico.aplicacoes_prticas", {
-		url: "/aplicacoes_prticas",
-		cache:false,
-		views: {
-			"atomo_quantico-side_menus" : {
-						templateUrl:"templates/atomo_quantico-aplicacoes_prticas.html",
-						controller: "aplicacoes_prticasCtrl"
-					},
-			"fabButtonUp" : {
-						template: '',
-					},
-		}
-	})
-
-	.state("atomo_quantico.aplicacoes_prticas_singles", {
-		url: "/aplicacoes_prticas_singles/:snippetresourceIdvideoId",
-		cache:false,
-		views: {
-			"atomo_quantico-side_menus" : {
-						templateUrl:"templates/atomo_quantico-aplicacoes_prticas_singles.html",
-						controller: "aplicacoes_prticas_singlesCtrl"
-					},
-			"fabButtonUp" : {
-						template: '',
-					},
-		}
-	})
-
-	.state("atomo_quantico.curso_de_mq_e_rh", {
-		url: "/curso_de_mq_e_rh",
-		cache:false,
-		views: {
-			"atomo_quantico-side_menus" : {
-						templateUrl:"templates/atomo_quantico-curso_de_mq_e_rh.html",
-						controller: "curso_de_mq_e_rhCtrl"
-					},
-			"fabButtonUp" : {
-						template: '',
-					},
-		}
-	})
-
-	.state("atomo_quantico.curso_de_mq_e_rh_singles", {
-		url: "/curso_de_mq_e_rh_singles/:snippetresourceIdvideoId",
-		cache:false,
-		views: {
-			"atomo_quantico-side_menus" : {
-						templateUrl:"templates/atomo_quantico-curso_de_mq_e_rh_singles.html",
-						controller: "curso_de_mq_e_rh_singlesCtrl"
-					},
-			"fabButtonUp" : {
-						template: '',
-					},
-		}
-	})
-
 	.state("atomo_quantico.dashboard", {
 		url: "/dashboard",
 		views: {
 			"atomo_quantico-side_menus" : {
 						templateUrl:"templates/atomo_quantico-dashboard.html",
 						controller: "dashboardCtrl"
-					},
-			"fabButtonUp" : {
-						template: '',
-					},
+					}
 		}
 	})
 
-	.state("atomo_quantico.entrevistas", {
-		url: "/entrevistas",
-		cache:false,
-		views: {
-			"atomo_quantico-side_menus" : {
-						templateUrl:"templates/atomo_quantico-entrevistas.html",
-						controller: "entrevistasCtrl"
-					},
-			"fabButtonUp" : {
-						template: '',
-					},
-		}
-	})
-
-	.state("atomo_quantico.entrevistas_singles", {
-		url: "/entrevistas_singles/:snippetresourceIdvideoId",
-		cache:false,
-		views: {
-			"atomo_quantico-side_menus" : {
-						templateUrl:"templates/atomo_quantico-entrevistas_singles.html",
-						controller: "entrevistas_singlesCtrl"
-					},
-			"fabButtonUp" : {
-						template: '',
-					},
-		}
-	})
-
-	.state("atomo_quantico.minutos", {
-		url: "/minutos",
-		cache:false,
-		views: {
-			"atomo_quantico-side_menus" : {
-						templateUrl:"templates/atomo_quantico-minutos.html",
-						controller: "minutosCtrl"
-					},
-			"fabButtonUp" : {
-						template: '',
-					},
-		}
-	})
-
-	.state("atomo_quantico.minutos_singles", {
-		url: "/minutos_singles/:snippetresourceIdvideoId",
-		cache:false,
-		views: {
-			"atomo_quantico-side_menus" : {
-						templateUrl:"templates/atomo_quantico-minutos_singles.html",
-						controller: "minutos_singlesCtrl"
-					},
-			"fabButtonUp" : {
-						template: '',
-					},
-		}
-	})
-
-	.state("atomo_quantico.principal", {
+    .state("atomo_quantico.principal", {
 		url: "/principal",
 		views: {
 			"atomo_quantico-side_menus" : {
 						templateUrl:"templates/atomo_quantico-principal.html",
 						controller: "principalCtrl"
-					},
-			"fabButtonUp" : {
-						template: '',
-					},
+					}
 		}
 	})
 
-	.state("atomo_quantico.prosperidade", {
-		url: "/prosperidade",
-		cache:false,
-		views: {
-			"atomo_quantico-side_menus" : {
-						templateUrl:"templates/atomo_quantico-prosperidade.html",
-						controller: "prosperidadeCtrl"
-					},
-			"fabButtonUp" : {
-						template: '',
-					},
-		}
-	})
-
-	.state("atomo_quantico.prosperidade_singles", {
-		url: "/prosperidade_singles/:snippetresourceIdvideoId",
-		cache:false,
-		views: {
-			"atomo_quantico-side_menus" : {
-						templateUrl:"templates/atomo_quantico-prosperidade_singles.html",
-						controller: "prosperidade_singlesCtrl"
-					},
-			"fabButtonUp" : {
-						template: '',
-					},
-		}
-	})
-
-	.state("atomo_quantico.slide_tab_menu", {
-		url: "/slide_tab_menu",
-		views: {
-			"atomo_quantico-side_menus" : {
-						templateUrl:"templates/atomo_quantico-slide_tab_menu.html",
-						controller: "slide_tab_menuCtrl"
-					},
-			"fabButtonUp" : {
-						template: '',
-					},
-		}
-	})
-
-	.state("atomo_quantico.sobre", {
+    .state("atomo_quantico.sobre", {
 		url: "/sobre",
-		cache:false,
 		views: {
 			"atomo_quantico-side_menus" : {
 						templateUrl:"templates/atomo_quantico-sobre.html",
 						controller: "sobreCtrl"
-					},
-			"fabButtonUp" : {
-						template: '',
-					},
+					}
 		}
 	})
 
-	.state("atomo_quantico.vdeos_ii", {
-		url: "/vdeos_ii",
-		cache:false,
+    // NOVOS MODULOS
+    .state("atomo_quantico.horoscopo", {
+		url: "/horoscopo",
 		views: {
 			"atomo_quantico-side_menus" : {
-						templateUrl:"templates/atomo_quantico-vdeos_ii.html",
-						controller: "vdeos_iiCtrl"
-					},
-			"fabButtonUp" : {
-						template: '',
-					},
+						templateUrl:"templates/atomo_quantico-horoscopo.html",
+						controller: "horoscopoCtrl"
+					}
 		}
 	})
 
-	.state("atomo_quantico.vdeos_ii_singles", {
-		url: "/vdeos_ii_singles/:snippetresourceIdvideoId",
-		cache:false,
+    .state("atomo_quantico.mensagens", {
+		url: "/mensagens",
 		views: {
 			"atomo_quantico-side_menus" : {
-						templateUrl:"templates/atomo_quantico-vdeos_ii_singles.html",
-						controller: "vdeos_ii_singlesCtrl"
-					},
-			"fabButtonUp" : {
-						template: '',
-					},
+						templateUrl:"templates/atomo_quantico-mensagens.html",
+						controller: "mensagensCtrl"
+					}
 		}
 	})
 
-	.state("atomo_quantico.videos2", {
-		url: "/videos2",
+    .state("atomo_quantico.chat", {
+		url: "/chat",
 		views: {
 			"atomo_quantico-side_menus" : {
-						templateUrl:"templates/atomo_quantico-videos2.html",
-						controller: "videos2Ctrl"
-					},
-			"fabButtonUp" : {
-						template: '',
-					},
+						templateUrl:"templates/atomo_quantico-chat.html",
+						controller: "chatCtrl"
+					}
 		}
 	})
 
-	.state("atomo_quantico.videos3", {
-		url: "/videos3",
+    .state("atomo_quantico.agradecimentos", {
+		url: "/agradecimentos",
 		views: {
 			"atomo_quantico-side_menus" : {
-						templateUrl:"templates/atomo_quantico-videos3.html",
-						controller: "videos3Ctrl"
-					},
-			"fabButtonUp" : {
-						template: '',
-					},
+						templateUrl:"templates/atomo_quantico-agradecimentos.html",
+						controller: "agradecimentosCtrl"
+					}
 		}
 	})
 
-	.state("atomo_quantico.videos_i", {
-		url: "/videos_i",
-		cache:false,
+    .state("atomo_quantico.postagens", {
+		url: "/postagens",
 		views: {
 			"atomo_quantico-side_menus" : {
-						templateUrl:"templates/atomo_quantico-videos_i.html",
-						controller: "videos_iCtrl"
-					},
-			"fabButtonUp" : {
-						template: '',
-					},
+						templateUrl:"templates/atomo_quantico-postagens.html",
+						controller: "postagensCtrl"
+					}
 		}
 	})
 
-	.state("atomo_quantico.videos_i_singles", {
-		url: "/videos_i_singles/:snippetresourceIdvideoId",
-		cache:false,
-		views: {
-			"atomo_quantico-side_menus" : {
-						templateUrl:"templates/atomo_quantico-videos_i_singles.html",
-						controller: "videos_i_singlesCtrl"
-					},
-			"fabButtonUp" : {
-						template: '',
-					},
-		}
-	})
-
-	.state("atomo_quantico.videos_iii", {
-		url: "/videos_iii",
-		cache:false,
-		views: {
-			"atomo_quantico-side_menus" : {
-						templateUrl:"templates/atomo_quantico-videos_iii.html",
-						controller: "videos_iiiCtrl"
-					},
-			"fabButtonUp" : {
-						template: '',
-					},
-		}
-	})
-
-	.state("atomo_quantico.videos_iii_singles", {
-		url: "/videos_iii_singles/:snippetresourceIdvideoId",
-		cache:false,
-		views: {
-			"atomo_quantico-side_menus" : {
-						templateUrl:"templates/atomo_quantico-videos_iii_singles.html",
-						controller: "videos_iii_singlesCtrl"
-					},
-			"fabButtonUp" : {
-						template: '',
-					},
-		}
-	})
-
-	$urlRouterProvider.otherwise("/atomo_quantico/principal");
+	$urlRouterProvider.otherwise("/atomo_quantico/dashboard");
 });

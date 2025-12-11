@@ -1,0 +1,28 @@
+<ion-view view-title="Feed do Agradecimento">
+    <ion-content class="padding">
+
+        <div class="card">
+            <div class="item item-divider">
+                Pelo que você é grato hoje?
+            </div>
+            <div class="item item-input">
+                <textarea placeholder="Escreva aqui..." rows="3" ng-model="novoAgradecimento"></textarea>
+            </div>
+            <div class="item">
+                <button class="button button-block button-dark" ng-click="adicionarAgradecimento()">
+                    Agradecer
+                </button>
+            </div>
+        </div>
+
+        <h4 class="padding-left margin-top">Mural da Gratidão</h4>
+
+        <div class="list card" ng-repeat="item in listaAgradecimentos track by $index">
+            <div class="item item-text-wrap">
+                <p>{{ item.texto }}</p>
+                <p class="text-right" style="font-size: 11px; color: #999; margin-top: 5px;">{{ item.data | date:'dd/MM/yyyy HH:mm' }}</p>
+            </div>
+        </div>
+
+    </ion-content>
+</ion-view>

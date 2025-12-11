@@ -1,42 +1,40 @@
-	<ion-view view-title=" Dashboard" hide-nav-bar="false" >
-		<!-- content -->
-		<ion-content delegate-handle="top"   id="page-dashboard" class=" page-dashboard">
+<ion-view view-title="Dashboard" hide-nav-bar="false" >
+		<ion-content delegate-handle="top" class="padding" style="background-color: #ffffff;">
 		
 		<div class="dashboard-panel">
-			<!-- row -->
-			<div class="row">
-				<a class="col-33 no-border light positive-bg ink"  ng-href="#/atomo_quantico/principal" >
-					<i class="icon ion-ios-home" ></i>
-					<p>{{ "Principal" | translate }}</p>
-				</a>
-				<a class="col-33 no-border light positive-900-bg ink" ng-click="openURL('https://chat.whatsapp.com/invite/9OFtwoeHCniGmigqg1BE0Y')" >
-					<i class="icon ion-android-film" ></i>
-					<p>{{ "Grupo WhatsApp" | translate }}</p>
-				</a>
-				<a class="col-33 no-border light calm-bg ink" ng-click="openURL('http://www.youtube.com/c/AtomoQuantico')" >
-					<i class="icon ion-android-film" ></i>
-					<p>{{ "Canal YouTube" | translate }}</p>
-				</a>
-			</div>
-			<!-- ./row -->
-			
+			<h4 class="text-center padding">Bem-vindo(a)</h4>
 
-			<!-- row -->
 			<div class="row">
-				<a class="col-33 no-border light calm-900-bg ink"  ng-href="#/atomo_quantico/sobre" >
-					<i class="icon ion-android-alert" ></i>
-					<p>{{ "Sobre" | translate }}</p>
+				<a class="col-33 no-border light positive-900-bg ink" ui-sref="atomo_quantico.horoscopo">
+					<i class="icon ion-planet" style="font-size: 32px; display: block; margin-bottom: 5px;"></i>
+					<p>Horóscopo</p>
+				</a>
+				<a class="col-33 no-border light positive-900-bg ink" ui-sref="atomo_quantico.mensagens">
+					<i class="icon ion-quote" style="font-size: 32px; display: block; margin-bottom: 5px;"></i>
+					<p>Mensagens</p>
+				</a>
+				<a class="col-33 no-border light positive-900-bg ink" ui-sref="atomo_quantico.chat">
+					<i class="icon ion-chatbubbles" style="font-size: 32px; display: block; margin-bottom: 5px;"></i>
+					<p>Chat</p>
 				</a>
 			</div>
-			<!-- ./row -->
+			
+			<div class="row">
+				<a class="col-33 no-border light positive-900-bg ink" ui-sref="atomo_quantico.agradecimentos">
+					<i class="icon ion-heart" style="font-size: 32px; display: block; margin-bottom: 5px;"></i>
+					<p>Gratidão</p>
+				</a>
+				<a class="col-33 no-border light positive-900-bg ink" ui-sref="atomo_quantico.postagens">
+					<i class="icon ion-ios-paper" style="font-size: 32px; display: block; margin-bottom: 5px;"></i>
+					<p>Postagens</p>
+				</a>
+				<a class="col-33 no-border light positive-900-bg ink" ui-sref="atomo_quantico.sobre">
+					<i class="icon ion-android-alert" style="font-size: 32px; display: block; margin-bottom: 5px;"></i>
+					<p>Sobre</p>
+				</a>
+			</div>
 			
 
 		</div>
-		<br/>
-		<br/>
-		<br/>
-		<br/>
-
 		</ion-content>
-		<!-- ./content -->
-	</ion-view>
+</ion-view>

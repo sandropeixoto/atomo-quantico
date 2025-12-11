@@ -1,0 +1,18 @@
+<ion-view view-title="Chat Privado">
+    <ion-content class="padding has-footer">
+        <div class="list">
+            <div ng-repeat="msg in mensagensChat" class="chat-bubble" ng-class="{'me': msg.eu, 'them': !msg.eu}">
+                <p>{{ msg.texto }}</p>
+                <span style="font-size: 10px; color: #888; display: block; text-align: right;">{{ msg.hora }}</span>
+            </div>
+        </div>
+    </ion-content>
+    <ion-footer-bar keyboard-attach class="bar-stable item-input-inset">
+        <label class="item-input-wrapper">
+            <input type="text" placeholder="Digite sua mensagem..." ng-model="input.mensagem" style="width:100%; background: #fff;">
+        </label>
+        <button class="button button-clear button-dark" ng-click="enviarMensagem()">
+            Enviar
+        </button>
+    </ion-footer-bar>
+</ion-view>
