@@ -30,14 +30,19 @@ const PublicFeed = () => {
     }));
 
     const authorIds = [...new Set(publicEntriesData.map(entry => entry.authorId))];
+    const usersData: { [key: string]: any } = {};
+
     if (authorIds.length > 0) {
       const usersRef = collection(db, 'users');
-      const usersQuery = query(usersRef, where('__name__', 'in', authorIds.slice(0, 10)));
-      const usersSnapshot = await getDocs(usersQuery);
-      const usersData = usersSnapshot.docs.reduce((acc, doc) => {
-        acc[doc.id] = doc.data();
-        return acc;
-      }, {} as { [key: string]: any });
+      // Processar em lotes de 10 por causa da limitação do Firestore na cláusula 'in'
+      for (let i = 0; i < authorIds.length; i += 10) {
+        const chunk = authorIds.slice(i, i + 10);
+        const usersQuery = query(usersRef, where('__name__', 'in', chunk));
+        const usersSnapshot = await getDocs(usersQuery);
+        usersSnapshot.docs.forEach(doc => {
+          usersData[doc.id] = doc.data();
+        });
+      }
 
       publicEntriesData.forEach(entry => {
         entry.authorName = usersData[entry.authorId]?.displayName || 'Anônimo';

@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { Link, useNavigate } from 'react-router-dom'; // Importa useNavigate
+import { Link, useNavigate } from 'react-router-dom';
 import { collection, getDocs, query, where, orderBy, doc, runTransaction, collectionGroup, limit } from 'firebase/firestore';
 import { db } from '../services/firebase';
 import { useAuth } from '../contexts/AuthContext';
@@ -19,7 +19,7 @@ export function Home() {
   const [entries, setEntries] = useState<PublicEntry[]>([]);
   const [likedEntries, setLikedEntries] = useState<string[]>([]);
   const { user } = useAuth();
-  const navigate = useNavigate(); // Instancia o hook
+  const navigate = useNavigate();
 
   const fetchPublicEntries = async () => {
     const q = query(collection(db, 'entries'), where('isPublic', '==', true), orderBy('timestamp', 'desc'), limit(10));
@@ -30,14 +30,19 @@ export function Home() {
     }));
 
     const authorIds = [...new Set(publicEntriesData.map(entry => entry.authorId))];
+    const usersData: { [key: string]: any } = {};
+
     if (authorIds.length > 0) {
       const usersRef = collection(db, 'users');
-      const usersQuery = query(usersRef, where('__name__', 'in', authorIds));
-      const usersSnapshot = await getDocs(usersQuery);
-      const usersData = usersSnapshot.docs.reduce((acc, doc) => {
-        acc[doc.id] = doc.data();
-        return acc;
-      }, {} as { [key: string]: any });
+      // Como a Home já é limitada a 10, um único batch é suficiente, mas a lógica de batching é mantida para consistência
+      for (let i = 0; i < authorIds.length; i += 10) {
+        const chunk = authorIds.slice(i, i + 10);
+        const usersQuery = query(usersRef, where('__name__', 'in', chunk));
+        const usersSnapshot = await getDocs(usersQuery);
+        usersSnapshot.docs.forEach(doc => {
+          usersData[doc.id] = doc.data();
+        });
+      }
 
       publicEntriesData.forEach(entry => {
         entry.authorName = usersData[entry.authorId]?.displayName || 'Anônimo';
@@ -66,7 +71,7 @@ export function Home() {
 
   const handleLike = async (entryId: string) => {
     if (!user) {
-      navigate('/login'); // Redireciona para o login
+      navigate('/login');
       return;
     }
 
