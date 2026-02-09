@@ -6,6 +6,7 @@ import { Contact } from './pages/Contact';
 import GratitudeJournal from './pages/GratitudeJournal';
 import PublicFeed from './pages/PublicFeed';
 import PostPage from './pages/PostPage';
+import Profile from './pages/Profile'; // Importa a nova página
 import { Login } from './pages/Login';
 import { AuthProvider } from './contexts/AuthContext';
 import { PrivateRoute } from './components/PrivateRoute';
@@ -22,6 +23,7 @@ function App() {
             <Route path="/gratitude-journal" element={<PrivateRoute><GratitudeJournal /></PrivateRoute>} />
             <Route path="/public-feed" element={<PublicFeed />} />
             <Route path="/post/:id" element={<PostPage />} />
+            <Route path="/profile" element={<PrivateRoute><Profile /></PrivateRoute>} /> // Adiciona a rota privada
           </Route>
           <Route path="/login" element={<Login />} />
         </Routes>

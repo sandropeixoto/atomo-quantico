@@ -2,7 +2,7 @@ import { Link } from 'react-router-dom';
 import { AtomoQuanticoLogo } from './AtomoQuanticoLogo';
 import { useAuth } from '../contexts/AuthContext';
 import { auth } from '../services/firebase';
-import { LogOut } from 'lucide-react';
+import { LogOut, User } from 'lucide-react'; // Importa o ícone de usuário
 
 export function Header() {
   const { user } = useAuth();
@@ -24,8 +24,11 @@ export function Header() {
           <li><Link to="/public-feed" className="hover:text-text-primary transition-colors">Feed</Link></li>
           <li><Link to="/gratitude-journal" className="hover:text-text-primary transition-colors">Diário</Link></li>
           {user ? (
-            <li className='flex items-center'>
-              <span className="mr-4 text-sm">Olá, {user.displayName}</span>
+            <li className='flex items-center space-x-4'>
+              <Link to="/profile" className="flex items-center space-x-2 text-text-secondary hover:text-text-primary transition-colors" title="Meu Perfil">
+                <User size={20} />
+                <span>{user.displayName}</span>
+              </Link>
               <button 
                 onClick={handleLogout} 
                 className="flex items-center space-x-2 text-text-secondary hover:text-text-primary transition-colors"

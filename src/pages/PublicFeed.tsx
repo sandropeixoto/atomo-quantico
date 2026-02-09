@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { collection, getDocs, query, where, orderBy, doc, runTransaction, collectionGroup } from 'firebase/firestore';
 import { db } from '../services/firebase';
 import { useAuth } from '../contexts/AuthContext';
@@ -19,6 +19,7 @@ const PublicFeed = () => {
   const [entries, setEntries] = useState<PublicEntry[]>([]);
   const [likedEntries, setLikedEntries] = useState<string[]>([]);
   const { user } = useAuth();
+  const navigate = useNavigate();
 
   const fetchPublicEntries = async () => {
     const q = query(collection(db, 'entries'), where('isPublic', '==', true), orderBy('timestamp', 'desc'));
@@ -31,7 +32,7 @@ const PublicFeed = () => {
     const authorIds = [...new Set(publicEntriesData.map(entry => entry.authorId))];
     if (authorIds.length > 0) {
       const usersRef = collection(db, 'users');
-      const usersQuery = query(usersRef, where('__name__', 'in', authorIds.slice(0, 10))); // Firestore 'in' query limit
+      const usersQuery = query(usersRef, where('__name__', 'in', authorIds.slice(0, 10)));
       const usersSnapshot = await getDocs(usersQuery);
       const usersData = usersSnapshot.docs.reduce((acc, doc) => {
         acc[doc.id] = doc.data();
@@ -65,7 +66,7 @@ const PublicFeed = () => {
 
   const handleLike = async (entryId: string) => {
     if (!user) {
-      alert("Por favor, faça login para curtir as publicações.");
+      navigate('/login');
       return;
     }
 

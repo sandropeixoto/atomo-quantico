@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom'; // Importa useNavigate
 import { collection, getDocs, query, where, orderBy, doc, runTransaction, collectionGroup, limit } from 'firebase/firestore';
 import { db } from '../services/firebase';
 import { useAuth } from '../contexts/AuthContext';
@@ -19,6 +19,7 @@ export function Home() {
   const [entries, setEntries] = useState<PublicEntry[]>([]);
   const [likedEntries, setLikedEntries] = useState<string[]>([]);
   const { user } = useAuth();
+  const navigate = useNavigate(); // Instancia o hook
 
   const fetchPublicEntries = async () => {
     const q = query(collection(db, 'entries'), where('isPublic', '==', true), orderBy('timestamp', 'desc'), limit(10));
@@ -59,13 +60,13 @@ export function Home() {
     if (user) {
       fetchUserLikes();
     } else {
-      setLikedEntries([]); // Clear likes when user logs out
+      setLikedEntries([]);
     }
   }, [user]);
 
   const handleLike = async (entryId: string) => {
     if (!user) {
-      alert("Por favor, faça login para curtir as publicações.");
+      navigate('/login'); // Redireciona para o login
       return;
     }
 

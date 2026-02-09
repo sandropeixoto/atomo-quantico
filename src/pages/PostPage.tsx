@@ -1,8 +1,9 @@
 import { useState, useEffect } from 'react';
-import { useParams } from 'react-router-dom';
+import { useParams, useNavigate } from 'react-router-dom';
 import { doc, getDoc, collection, getDocs, query, orderBy, runTransaction, where } from 'firebase/firestore';
 import { db } from '../services/firebase';
 import { useAuth } from '../contexts/AuthContext';
+import { Heart } from 'lucide-react';
 
 interface Post {
   id: string;
@@ -10,6 +11,8 @@ interface Post {
   authorId: string;
   timestamp: { seconds: number; };
   authorName?: string;
+  likesCount?: number;
+  commentsCount?: number;
 }
 
 interface Comment {
@@ -22,10 +25,14 @@ interface Comment {
 
 const PostPage = () => {
   const { id } = useParams<{ id: string }>();
+  const navigate = useNavigate();
+  const { user } = useAuth();
+
   const [post, setPost] = useState<Post | null>(null);
   const [comments, setComments] = useState<Comment[]>([]);
   const [newComment, setNewComment] = useState('');
-  const { user } = useAuth();
+  const [isLiked, setIsLiked] = useState(false);
+  const [isLiking, setIsLiking] = useState(false);
 
   const fetchPostAndComments = async () => {
     if (!id) return;
@@ -34,12 +41,18 @@ const PostPage = () => {
 
     if (postSnap.exists()) {
       const postData = { id: postSnap.id, ...postSnap.data() } as Post;
-      const userRef = doc(db, 'users', postData.authorId);
-      const userSnap = await getDoc(userRef);
-      if (userSnap.exists()) {
-        postData.authorName = userSnap.data().displayName || 'Anônimo';
+      const userDocRef = doc(db, 'users', postData.authorId);
+      const userDoc = await getDoc(userDocRef);
+      if (userDoc.exists()) {
+        postData.authorName = userDoc.data().displayName || 'Anônimo';
       }
       setPost(postData);
+
+      if (user) {
+        const likeRef = doc(db, 'entries', id, 'likes', user.uid);
+        const likeSnap = await getDoc(likeRef);
+        setIsLiked(likeSnap.exists());
+      }
 
       const commentsQuery = query(collection(db, 'entries', id, 'comments'), orderBy('timestamp', 'asc'));
       const commentsSnapshot = await getDocs(commentsQuery);
@@ -47,8 +60,7 @@ const PostPage = () => {
 
       const authorIds = [...new Set(commentsData.map(comment => comment.authorId))];
       if (authorIds.length > 0) {
-        const usersRef = collection(db, 'users');
-        const usersQuery = query(usersRef, where('__name__', 'in', authorIds));
+        const usersQuery = query(collection(db, 'users'), where('__name__', 'in', authorIds));
         const usersSnapshot = await getDocs(usersQuery);
         const usersData = usersSnapshot.docs.reduce((acc, doc) => {
           acc[doc.id] = doc.data();
@@ -67,9 +79,48 @@ const PostPage = () => {
 
   useEffect(() => {
     fetchPostAndComments();
-  }, [id]);
+  }, [id, user]);
 
-  const handleCommentSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
+  const handleLike = async () => {
+    if (isLiking) return;
+    if (!user) {
+      navigate('/login');
+      return;
+    }
+    if (!id) return;
+    setIsLiking(true);
+
+    const postRef = doc(db, 'entries', id);
+    const likeRef = doc(db, 'entries', id, 'likes', user.uid);
+
+    try {
+      await runTransaction(db, async (transaction) => {
+        const postDoc = await transaction.get(postRef);
+        if (!postDoc.exists()) {
+          throw "A publicação não existe!";
+        }
+
+        const newLikesCount = postDoc.data().likesCount || 0;
+        if (isLiked) {
+          transaction.update(postRef, { likesCount: newLikesCount - 1 });
+          transaction.delete(likeRef);
+        } else {
+          transaction.update(postRef, { likesCount: newLikesCount + 1 });
+          transaction.set(likeRef, { userId: user.uid, timestamp: new Date() });
+        }
+      });
+
+      setIsLiked(!isLiked);
+      setPost(prevPost => prevPost ? { ...prevPost, likesCount: (prevPost.likesCount || 0) + (isLiked ? -1 : 1) } : null);
+
+    } catch (e) {
+      console.error("Erro na transação do like: ", e);
+    } finally {
+      setIsLiking(false);
+    }
+  };
+
+    const handleCommentSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     if (newComment.trim() === '' || !user || !id) return;
 
@@ -94,11 +145,12 @@ const PostPage = () => {
         });
 
         setNewComment('');
-        fetchPostAndComments(); // Refresh comments
+        fetchPostAndComments();
     } catch (e) {
         console.error("Erro na transação do comentário: ", e);
     }
   };
+
 
   if (!post) {
     return <div className="text-center py-20">Carregando...</div>;
@@ -109,6 +161,15 @@ const PostPage = () => {
       <div className="bg-background rounded-2xl shadow-lg p-8 mb-8">
         <p className="text-sm text-gray-400 mb-2">Postado por {post.authorName} em {new Date(post.timestamp.seconds * 1000).toLocaleDateString('pt-BR')}</p>
         <p className="text-text-secondary text-lg leading-relaxed">{post.text}</p>
+        <div className="flex items-center space-x-4 mt-6 text-text-secondary">
+          <button onClick={handleLike} disabled={isLiking} className={`flex items-center space-x-2 hover:text-red-500 transition-colors ${isLiked ? 'text-red-500' : ''}`}>
+            <Heart fill={isLiked ? 'currentColor' : 'none'} size={22}/>
+            <span>{post.likesCount || 0}</span>
+          </button>
+          <div className="flex items-center space-x-2">
+            <span>{post.commentsCount || 0} Comentários</span>
+          </div>
+        </div>
       </div>
 
       <div className="bg-background rounded-2xl shadow-lg p-8">
@@ -116,9 +177,6 @@ const PostPage = () => {
         <div className="space-y-6 mb-8">
           {comments.map(comment => (
             <div key={comment.id} className="flex items-start space-x-4">
-              <div className="flex-shrink-0">
-                {/* You can add user avatars here later */}
-              </div>
               <div className="flex-1">
                 <p className="text-text-secondary mb-1"><span className="font-semibold text-text-primary">{comment.authorName}</span>: {comment.text}</p>
                 <p className="text-xs text-gray-400">{new Date(comment.timestamp.seconds * 1000).toLocaleDateString('pt-BR')}</p>
@@ -128,21 +186,22 @@ const PostPage = () => {
           {comments.length === 0 && <p className="text-text-secondary">Seja o primeiro a comentar!</p>}
         </div>
 
-        {user && (
+        {user ? (
           <form onSubmit={handleCommentSubmit}>
             <textarea
-              className="w-full p-4 border border-gray-200 rounded-lg bg-gray-50 focus:ring-2 focus:ring-secondary focus:outline-none transition-shadow"
+              className="w-full p-4 border rounded-lg bg-gray-800 border-gray-700 text-text-primary focus:ring-2 focus:ring-secondary focus:outline-none transition-shadow"
               rows={3}
               placeholder="Adicione um comentário..."
               value={newComment}
               onChange={(e) => setNewComment(e.target.value)}
             />
-            <button type="submit" className="bg-secondary text-text-primary font-semibold py-2 px-6 rounded-lg hover:opacity-90 transition-opacity mt-4">
+            <button type="submit" className="bg-secondary text-text-primary font-semibold py-2 px-6 rounded-full hover:opacity-90 transition-opacity mt-4">
               Comentar
             </button>
           </form>
+        ) : (
+          <p className="text-text-secondary text-center py-4 bg-gray-800 rounded-lg">Faça <Link to="/login" className="text-secondary font-semibold hover:underline">login</Link> para curtir ou comentar.</p>
         )}
-        {!user && <p className="text-text-secondary">Você precisa estar logado para comentar.</p>}
       </div>
     </div>
   );
