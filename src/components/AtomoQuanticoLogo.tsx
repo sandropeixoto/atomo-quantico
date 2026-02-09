@@ -1,8 +1,8 @@
-export function QuantumLogo() {
+export function AtomoQuanticoLogo() {
   return (
     <svg
       xmlns="http://www.w3.org/2000/svg"
-      className="h-8 w-8 text-quantum-violet"
+      className="h-8 w-8 text-secondary"
       viewBox="0 0 24 24"
       fill="none"
       stroke="currentColor"

@@ -1,0 +1,104 @@
+import React, { useState, useEffect } from 'react';
+import { collection, addDoc, getDocs, query, orderBy } from 'firebase/firestore';
+import { db } from '../services/firebase';
+import { useAuth } from '../contexts/AuthContext';
+import { PenSquare } from 'lucide-react';
+
+interface JournalEntry {
+  id: string;
+  text: string;
+  timestamp: { seconds: number; };
+}
+
+const GratitudeJournal = () => {
+  const [entry, setEntry] = useState('');
+  const [entries, setEntries] = useState<JournalEntry[]>([]);
+  const { user } = useAuth();
+
+  const fetchEntries = async () => {
+    if (!user) return;
+    const q = query(collection(db, 'gratitude-journal', user.uid, 'entries'), orderBy('timestamp', 'desc'));
+    const querySnapshot = await getDocs(q);
+    const entriesData = querySnapshot.docs.map(doc => ({
+      id: doc.id,
+      ...(doc.data() as { text: string; timestamp: { seconds: number; } }),
+    }));
+    setEntries(entriesData);
+  };
+
+  useEffect(() => {
+    if (user) {
+      fetchEntries();
+    }
+  }, [user]);
+
+  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+    if (entry.trim() === '' || !user) return;
+
+    try {
+      await addDoc(collection(db, 'gratitude-journal', user.uid, 'entries'), {
+        text: entry,
+        timestamp: new Date(),
+      });
+      setEntry('');
+      fetchEntries();
+    } catch (e) {
+      console.error('Error adding document: ', e);
+    }
+  };
+
+  if (!user) {
+    return (
+      <div className="text-center py-20">
+        <h2 className="text-2xl font-semibold text-text-primary">Por favor, faça login para ver seu diário.</h2>
+      </div>
+    )
+  }
+
+  return (
+    <div className="max-w-3xl mx-auto py-12 px-4">
+      <h1 className="text-4xl font-bold text-center text-text-primary mb-12">Meu Diário de Gratidão</h1>
+      
+      <div className="bg-background rounded-2xl shadow-lg p-8 mb-12">
+        <form onSubmit={handleSubmit}>
+          <h2 className="text-2xl font-semibold text-text-primary mb-4">Pelo que você é grato hoje?</h2>
+          <textarea
+            className="w-full p-4 border border-gray-200 rounded-lg bg-gray-50 focus:ring-2 focus:ring-secondary focus:outline-none transition-shadow"
+            rows={5}
+            placeholder="Comece a escrever..."
+            value={entry}
+            onChange={(e: React.ChangeEvent<HTMLTextAreaElement>) => setEntry(e.target.value)}
+          />
+          <button
+            type="submit"
+            className="bg-secondary text-text-primary font-semibold py-3 px-6 rounded-lg hover:opacity-90 transition-opacity mt-4 inline-flex items-center space-x-2"
+          >
+            <PenSquare size={20} />
+            <span>Registrar Gratidão</span>
+          </button>
+        </form>
+      </div>
+
+      <div>
+        <h2 className="text-3xl font-bold text-text-primary mb-8">Suas Memórias de Gratidão</h2>
+        <div className="space-y-6">
+          {entries.length > 0 ? (
+            entries.map((entryItem) => (
+              <div key={entryItem.id} className="bg-background rounded-xl shadow-md p-6 border-l-4 border-accent">
+                <p className="text-text-secondary leading-relaxed mb-3">{entryItem.text}</p>
+                <p className="text-sm text-gray-400 font-light">
+                  {new Date(entryItem.timestamp.seconds * 1000).toLocaleDateString('pt-BR', { year: 'numeric', month: 'long', day: 'numeric' })}
+                </p>
+              </div>
+            ))
+          ) : (
+            <p className="text-center text-text-secondary">Você ainda não tem nenhuma entrada. Comece a escrever acima!</p>
+          )}
+        </div>
+      </div>
+    </div>
+  );
+};
+
+export default GratitudeJournal;
