@@ -1,97 +1,73 @@
+# React + TypeScript + Vite
 
-# React Native Project
+This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
 
-This is a new [**React Native**](https://reactnative.dev) project, bootstrapped using the React Native CLI.
+Currently, two official plugins are available:
 
-## Getting Started
+- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Babel](https://babeljs.io/) (or [oxc](https://oxc.rs) when used in [rolldown-vite](https://vite.dev/guide/rolldown)) for Fast Refresh
+- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
 
-### Running the App
+## React Compiler
 
-The development environment is already set up with all necessary dependencies. You can start developing right away!
+The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
 
-#### Android
+## Expanding the ESLint configuration
 
-To run your app on Android:
+If you are developing a production application, we recommend updating the configuration to enable type-aware lint rules:
 
-```bash
-npm run android
+```js
+export default defineConfig([
+  globalIgnores(['dist']),
+  {
+    files: ['**/*.{ts,tsx}'],
+    extends: [
+      // Other configs...
+
+      // Remove tseslint.configs.recommended and replace with this
+      tseslint.configs.recommendedTypeChecked,
+      // Alternatively, use this for stricter rules
+      tseslint.configs.strictTypeChecked,
+      // Optionally, add this for stylistic rules
+      tseslint.configs.stylisticTypeChecked,
+
+      // Other configs...
+    ],
+    languageOptions: {
+      parserOptions: {
+        project: ['./tsconfig.node.json', './tsconfig.app.json'],
+        tsconfigRootDir: import.meta.dirname,
+      },
+      // other options...
+    },
+  },
+])
 ```
 
-This will:
-1. Start the Metro bundler if it's not already running
-2. Build the Android app
-3. Install and launch it on the Android emulator
+You can also install [eslint-plugin-react-x](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-x) and [eslint-plugin-react-dom](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-dom) for React-specific lint rules:
 
-#### iOS
+```js
+// eslint.config.js
+import reactX from 'eslint-plugin-react-x'
+import reactDom from 'eslint-plugin-react-dom'
 
-To run your app on iOS (requires macOS):
-
-```bash
-npm run ios
+export default defineConfig([
+  globalIgnores(['dist']),
+  {
+    files: ['**/*.{ts,tsx}'],
+    extends: [
+      // Other configs...
+      // Enable lint rules for React
+      reactX.configs['recommended-typescript'],
+      // Enable lint rules for React DOM
+      reactDom.configs.recommended,
+    ],
+    languageOptions: {
+      parserOptions: {
+        project: ['./tsconfig.node.json', './tsconfig.app.json'],
+        tsconfigRootDir: import.meta.dirname,
+      },
+      // other options...
+    },
+  },
+])
 ```
-
-### Development
-
-The Metro bundler will start automatically when you run the app. If you need to start it manually:
-
-```bash
-npm start
-```
-
-### Testing and Linting
-
-Run tests:
-```bash
-npm test
-```
-
-Run linter:
-```bash
-npm run lint
-```
-
-## Project Structure
-
-```
-your-project/
-├── android/               # Android native code
-├── ios/                  # iOS native code
-├── src/                  # JavaScript/TypeScript source code
-│   ├── components/       # Reusable components
-│   ├── screens/         # Screen components
-│   └── App.tsx          # Application entry point
-├── __tests__/           # Test files
-├── .idx/                # IDX configuration
-└── package.json         # Project dependencies and scripts
-```
-
-## Useful Resources
-
-- [React Native Documentation](https://reactnative.dev/docs/getting-started)
-- [React Native CLI](https://github.com/react-native-community/cli)
-- [Metro Bundler](https://facebook.github.io/metro/)
-- [React Native Testing](https://reactnative.dev/docs/testing-overview)
-
-## Troubleshooting
-
-### Metro Bundler Issues
-If you encounter issues with Metro bundler:
-1. Clear Metro cache: `npm start --reset-cache`
-2. Make sure Watchman is running properly
-3. Check the terminal output for specific error messages
-
-### Android Build Issues
-If you encounter Android build issues:
-1. Check that ANDROID_HOME is properly set
-2. Ensure Android SDK tools are properly installed
-3. Try cleaning the build: `cd android && ./gradlew clean`
-
-### iOS Build Issues
-If you encounter iOS build issues:
-1. Make sure you have Xcode installed (macOS only)
-2. Try cleaning the build: `cd ios && pod install`
-3. Clear derived data in Xcode
-
-## License
-
-This project is open source and available under the MIT License.
