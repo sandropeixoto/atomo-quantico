@@ -14,7 +14,7 @@ interface JournalEntry {
 const GratitudeJournal = () => {
   const [entry, setEntry] = useState('');
   const [entries, setEntries] = useState<JournalEntry[]>([]);
-  const [isPublic, setIsPublic] = useState(false);
+  const [isPublic, setIsPublic] = useState(true);
   const { user } = useAuth();
 
   const fetchEntries = async () => {
@@ -48,7 +48,7 @@ const GratitudeJournal = () => {
         commentsCount: 0,
       });
       setEntry('');
-      setIsPublic(false);
+      setIsPublic(true);
       fetchEntries();
     } catch (e) {
       console.error('Error adding document: ', e);

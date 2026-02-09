@@ -31,8 +31,7 @@ const PublicFeed = () => {
     const authorIds = [...new Set(publicEntriesData.map(entry => entry.authorId))];
     if (authorIds.length > 0) {
       const usersRef = collection(db, 'users');
-      // Firestore 'in' query is limited to 10 items. For a larger scale app, you'd need to handle this differently.
-      const usersQuery = query(usersRef, where('__name__', 'in', authorIds));
+      const usersQuery = query(usersRef, where('__name__', 'in', authorIds.slice(0, 10))); // Firestore 'in' query limit
       const usersSnapshot = await getDocs(usersQuery);
       const usersData = usersSnapshot.docs.reduce((acc, doc) => {
         acc[doc.id] = doc.data();
@@ -59,6 +58,8 @@ const PublicFeed = () => {
     fetchPublicEntries();
     if (user) {
       fetchUserLikes();
+    } else {
+      setLikedEntries([]);
     }
   }, [user]);
 
@@ -70,10 +71,10 @@ const PublicFeed = () => {
 
     const entryRef = doc(db, 'entries', entryId);
     const likeRef = doc(db, 'entries', entryId, 'likes', user.uid);
+    const isLiked = likedEntries.includes(entryId);
 
     try {
       await runTransaction(db, async (transaction) => {
-        const likeDoc = await transaction.get(likeRef);
         const entryDoc = await transaction.get(entryRef);
 
         if (!entryDoc.exists()) {
@@ -81,7 +82,6 @@ const PublicFeed = () => {
         }
 
         const newLikesCount = entryDoc.data().likesCount || 0;
-        const isLiked = likedEntries.includes(entryId);
 
         if (isLiked) {
           transaction.delete(likeRef);
@@ -92,7 +92,6 @@ const PublicFeed = () => {
         }
       });
 
-      // Update state locally for instant feedback
       setLikedEntries(prev => isLiked ? prev.filter(id => id !== entryId) : [...prev, entryId]);
       setEntries(prevEntries => prevEntries.map(entry => {
         if (entry.id === entryId) {
@@ -108,7 +107,7 @@ const PublicFeed = () => {
 
   return (
     <div className="max-w-3xl mx-auto py-12 px-4">
-      <h1 className="text-4xl font-bold text-center text-text-primary mb-12">Feed de Gratidão</h1>
+      <h1 className="text-4xl font-bold text-center text-text-primary mb-12">Feed de Gratidão Completo</h1>
       <div className="space-y-8">
         {entries.length > 0 ? (
           entries.map(entry => (
@@ -132,7 +131,7 @@ const PublicFeed = () => {
             </div>
           ))
         ) : (
-          <p className="text-center text-text-secondary">Nenhuma entrada pública ainda. Seja o primeiro!</p>
+          <p className="text-center text-text-secondary">Nenhuma entrada pública ainda.</p>
         )}
       </div>
     </div>

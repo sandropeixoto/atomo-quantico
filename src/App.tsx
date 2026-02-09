@@ -5,7 +5,7 @@ import { About } from './pages/About';
 import { Contact } from './pages/Contact';
 import GratitudeJournal from './pages/GratitudeJournal';
 import PublicFeed from './pages/PublicFeed';
-import PostPage from './pages/PostPage'; // Import PostPage
+import PostPage from './pages/PostPage';
 import { Login } from './pages/Login';
 import { AuthProvider } from './contexts/AuthContext';
 import { PrivateRoute } from './components/PrivateRoute';
@@ -21,7 +21,7 @@ function App() {
             <Route path="contact" element={<Contact />} />
             <Route path="/gratitude-journal" element={<PrivateRoute><GratitudeJournal /></PrivateRoute>} />
             <Route path="/public-feed" element={<PublicFeed />} />
-            <Route path="/post/:id" element={<PostPage />} /> {/* Add PostPage route */}
+            <Route path="/post/:id" element={<PostPage />} />
           </Route>
           <Route path="/login" element={<Login />} />
         </Routes>

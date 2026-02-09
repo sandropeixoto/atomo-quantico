@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useParams } from 'react-router-dom';
-import { doc, getDoc, collection, addDoc, getDocs, query, orderBy, runTransaction } from 'firebase/firestore';
+import { doc, getDoc, collection, getDocs, query, orderBy, runTransaction, where } from 'firebase/firestore';
 import { db } from '../services/firebase';
 import { useAuth } from '../contexts/AuthContext';
 

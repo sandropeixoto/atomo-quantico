@@ -3,54 +3,43 @@ rules_version = '2';
 service cloud.firestore {
   match /databases/{database}/documents {
 
-    // Regras para a coleção 'entries'
     match /entries/{entryId} {
-      // Qualquer um pode ler uma entrada se ela for pública
-      allow read: if get(/databases/$(database)/documents/entries/$(entryId)).data.isPublic == true;
+      // Allow reading public entries, or entries owned by the user.
+      // This rule is evaluated for every document a query tries to return.
+      // For public feeds, the query is `where('isPublic', '==', true)`, so every document
+      // will pass the `resource.data.isPublic == true` check.
+      // This also allows unauthenticated users to see the public feed.
+      allow read: if resource.data.isPublic == true || (request.auth != null && request.auth.uid == resource.data.authorId);
+      
+      allow create: if request.auth != null && request.auth.uid == request.resource.data.authorId
+                    && request.resource.data.likesCount == 0
+                    && request.resource.data.commentsCount == 0;
+      
+      allow update: if request.auth != null && request.auth.uid == resource.data.authorId;
+      allow delete: if request.auth != null && request.auth.uid == resource.data.authorId;
 
-      // O usuário pode ler todas as suas próprias entradas
-      allow read: if request.auth.uid == resource.data.authorId;
-
-      // O usuário pode criar uma entrada se o authorId for o seu próprio uid
-      allow create: if request.auth.uid == request.resource.data.authorId;
-
-      // O usuário pode atualizar ou deletar suas próprias entradas
-      allow update, delete: if request.auth.uid == resource.data.authorId;
-
-      // Regras para sub-coleções de 'entries' (likes e comments)
       match /likes/{likeId} {
-        // Qualquer um pode ler os likes de uma publicação
-        allow read: if get(/databases/$(database)/documents/entries/$(entryId)).data.isPublic == true;
-
-        // O usuário pode criar um like se o likeId for o seu próprio uid
-        allow create: if request.auth.uid == likeId;
-
-        // O usuário só pode deletar o seu próprio like
-        allow delete: if request.auth.uid == likeId;
+        // Allow reading likes for any public post.
+        // Allow creating/deleting your own like.
+        allow read: if get(/databases/$(database)/documents/entries/$(entryId)).data.isPublic == true || (request.auth != null && get(/databases/$(database)/documents/entries/$(entryId)).data.authorId == request.auth.uid);
+        allow create: if request.auth != null && request.auth.uid == likeId;
+        allow delete: if request.auth != null && request.auth.uid == likeId;
       }
 
       match /comments/{commentId} {
-        // Qualquer um pode ler os comentários de uma publicação pública
-        allow read: if get(/databases/$(database)/documents/entries/$(entryId)).data.isPublic == true;
-
-        // O usuário pode criar um comentário se o authorId for o seu próprio uid
-        allow create: if request.auth.uid == request.resource.data.authorId;
-
-        // O usuário só pode atualizar ou deletar os seus próprios comentários
-        allow update, delete: if request.auth.uid == resource.data.authorId;
+        // Allow reading comments for any public post.
+        // Allow creating a comment if authenticated.
+        // Allow updating/deleting your own comment.
+        allow read: if get(/databases/$(database)/documents/entries/$(entryId)).data.isPublic == true || (request.auth != null && get(/databases/$(database)/documents/entries/$(entryId)).data.authorId == request.auth.uid);
+        allow create: if request.auth != null && request.auth.uid == request.resource.data.authorId;
+        allow update, delete: if request.auth != null && request.auth.uid == resource.data.authorId;
       }
     }
 
-    // Regras para a coleção 'users'
     match /users/{userId} {
-      // Qualquer um pode ler os dados públicos de um usuário (ex: displayName)
       allow read: if true;
-
-      // O usuário pode criar seu próprio documento de usuário
-      allow create: if request.auth.uid == userId;
-
-      // O usuário pode atualizar seu próprio documento de usuário
-      allow update: if request.auth.uid == userId;
+      allow create: if request.auth != null && request.auth.uid == userId;
+      allow update: if request.auth != null && request.auth.uid == userId;
     }
   }
 }
