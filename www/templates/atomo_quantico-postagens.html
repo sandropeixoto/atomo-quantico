@@ -1,0 +1,33 @@
+<ion-view view-title="Feed de Postagens">
+    <ion-content class="padding" style="background-color: #f9f9f9;">
+
+        <div class="list card" ng-repeat="post in postagens">
+            <div class="item item-avatar">
+                <img src="data/images/blank.jpg" style="background-color: #ccc;">
+                <h2>{{ post.autor }}</h2>
+                <p>{{ post.data }}</p>
+            </div>
+
+            <div class="item item-body">
+                <img class="full-image" ng-if="post.imagem" src="{{ post.imagem }}">
+                <h3 class="margin-top">{{ post.titulo }}</h3>
+                <p>
+                    {{ post.conteudo }}
+                </p>
+            </div>
+
+            <div class="item tabs tabs-secondary tabs-icon-left">
+                <a class="tab-item" href="#">
+                    <i class="icon ion-thumbsup"></i> Curtir
+                </a>
+                <a class="tab-item" href="#">
+                    <i class="icon ion-chatbox"></i> Comentar
+                </a>
+                <a class="tab-item" href="#">
+                    <i class="icon ion-share"></i> Compartilhar
+                </a>
+            </div>
+        </div>
+
+    </ion-content>
+</ion-view>

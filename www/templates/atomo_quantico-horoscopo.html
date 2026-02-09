@@ -1,0 +1,21 @@
+<ion-view view-title="Horóscopo">
+    <ion-content class="padding">
+        <div class="card">
+            <div class="item item-divider">
+                <h2 class="text-center">Seu Horóscopo de Hoje</h2>
+                <p class="text-center">{{ dataHoje | date:'dd/MM/yyyy' }}</p>
+            </div>
+            <div class="item item-text-wrap text-center padding">
+                <i class="icon ion-planet" style="font-size: 64px; margin-bottom: 20px; display: block;"></i>
+                <p style="font-size: 16px; line-height: 1.5;">
+                    {{ horoscopoDoDia }}
+                </p>
+            </div>
+            <div class="item item-divider text-center">
+                <button class="button button-clear button-dark" ng-click="compartilhar()">
+                    Compartilhar
+                </button>
+            </div>
+        </div>
+    </ion-content>
+</ion-view>

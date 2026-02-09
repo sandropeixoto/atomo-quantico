@@ -1,0 +1,24 @@
+<ion-view view-title="Mensagens Edificantes">
+    <ion-content class="padding" style="background-color: #f4f4f4;">
+        <div class="list card">
+            <div class="item item-body">
+                <blockquote style="border-left: 5px solid #000; padding-left: 15px; margin: 20px 0;">
+                    <p style="font-size: 18px; font-style: italic;">
+                        "{{ mensagemAtual.texto }}"
+                    </p>
+                    <footer class="text-right" style="margin-top: 10px; font-weight: bold;">
+                        - {{ mensagemAtual.autor }}
+                    </footer>
+                </blockquote>
+            </div>
+            <div class="item tabs tabs-secondary tabs-icon-left">
+                <a class="tab-item" ng-click="novaMensagem()">
+                    <i class="icon ion-refresh"></i> Nova Mensagem
+                </a>
+                <a class="tab-item" ng-click="compartilharMensagem()">
+                    <i class="icon ion-share"></i> Compartilhar
+                </a>
+            </div>
+        </div>
+    </ion-content>
+</ion-view>
