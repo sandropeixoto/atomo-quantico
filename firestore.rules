@@ -1,0 +1,56 @@
+rules_version = '2';
+
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    // Regras para a coleção 'entries'
+    match /entries/{entryId} {
+      // Qualquer um pode ler uma entrada se ela for pública
+      allow read: if get(/databases/$(database)/documents/entries/$(entryId)).data.isPublic == true;
+
+      // O usuário pode ler todas as suas próprias entradas
+      allow read: if request.auth.uid == resource.data.authorId;
+
+      // O usuário pode criar uma entrada se o authorId for o seu próprio uid
+      allow create: if request.auth.uid == request.resource.data.authorId;
+
+      // O usuário pode atualizar ou deletar suas próprias entradas
+      allow update, delete: if request.auth.uid == resource.data.authorId;
+
+      // Regras para sub-coleções de 'entries' (likes e comments)
+      match /likes/{likeId} {
+        // Qualquer um pode ler os likes de uma publicação
+        allow read: if get(/databases/$(database)/documents/entries/$(entryId)).data.isPublic == true;
+
+        // O usuário pode criar um like se o likeId for o seu próprio uid
+        allow create: if request.auth.uid == likeId;
+
+        // O usuário só pode deletar o seu próprio like
+        allow delete: if request.auth.uid == likeId;
+      }
+
+      match /comments/{commentId} {
+        // Qualquer um pode ler os comentários de uma publicação pública
+        allow read: if get(/databases/$(database)/documents/entries/$(entryId)).data.isPublic == true;
+
+        // O usuário pode criar um comentário se o authorId for o seu próprio uid
+        allow create: if request.auth.uid == request.resource.data.authorId;
+
+        // O usuário só pode atualizar ou deletar os seus próprios comentários
+        allow update, delete: if request.auth.uid == resource.data.authorId;
+      }
+    }
+
+    // Regras para a coleção 'users'
+    match /users/{userId} {
+      // Qualquer um pode ler os dados públicos de um usuário (ex: displayName)
+      allow read: if true;
+
+      // O usuário pode criar seu próprio documento de usuário
+      allow create: if request.auth.uid == userId;
+
+      // O usuário pode atualizar seu próprio documento de usuário
+      allow update: if request.auth.uid == userId;
+    }
+  }
+}

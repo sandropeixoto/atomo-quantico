@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { collection, addDoc, getDocs, query, orderBy } from 'firebase/firestore';
+import { collection, addDoc, getDocs, query, where, orderBy } from 'firebase/firestore';
 import { db } from '../services/firebase';
 import { useAuth } from '../contexts/AuthContext';
 import { PenSquare } from 'lucide-react';
@@ -8,20 +8,22 @@ interface JournalEntry {
   id: string;
   text: string;
   timestamp: { seconds: number; };
+  isPublic: boolean;
 }
 
 const GratitudeJournal = () => {
   const [entry, setEntry] = useState('');
   const [entries, setEntries] = useState<JournalEntry[]>([]);
+  const [isPublic, setIsPublic] = useState(false);
   const { user } = useAuth();
 
   const fetchEntries = async () => {
     if (!user) return;
-    const q = query(collection(db, 'gratitude-journal', user.uid, 'entries'), orderBy('timestamp', 'desc'));
+    const q = query(collection(db, 'entries'), where('authorId', '==', user.uid), orderBy('timestamp', 'desc'));
     const querySnapshot = await getDocs(q);
     const entriesData = querySnapshot.docs.map(doc => ({
       id: doc.id,
-      ...(doc.data() as { text: string; timestamp: { seconds: number; } }),
+      ...(doc.data() as { text: string; timestamp: { seconds: number; }; isPublic: boolean; }),
     }));
     setEntries(entriesData);
   };
@@ -37,11 +39,16 @@ const GratitudeJournal = () => {
     if (entry.trim() === '' || !user) return;
 
     try {
-      await addDoc(collection(db, 'gratitude-journal', user.uid, 'entries'), {
+      await addDoc(collection(db, 'entries'), {
         text: entry,
         timestamp: new Date(),
+        authorId: user.uid,
+        isPublic: isPublic,
+        likesCount: 0,
+        commentsCount: 0,
       });
       setEntry('');
+      setIsPublic(false);
       fetchEntries();
     } catch (e) {
       console.error('Error adding document: ', e);
@@ -70,6 +77,20 @@ const GratitudeJournal = () => {
             value={entry}
             onChange={(e: React.ChangeEvent<HTMLTextAreaElement>) => setEntry(e.target.value)}
           />
+          
+          <div className="flex items-center mt-4">
+            <input
+              type="checkbox"
+              id="isPublic"
+              checked={isPublic}
+              onChange={(e) => setIsPublic(e.target.checked)}
+              className="h-4 w-4 text-secondary focus:ring-secondary border-gray-300 rounded"
+            />
+            <label htmlFor="isPublic" className="ml-2 block text-sm text-text-secondary">
+              Tornar esta entrada pública
+            </label>
+          </div>
+
           <button
             type="submit"
             className="bg-secondary text-text-primary font-semibold py-3 px-6 rounded-lg hover:opacity-90 transition-opacity mt-4 inline-flex items-center space-x-2"
@@ -86,6 +107,7 @@ const GratitudeJournal = () => {
           {entries.length > 0 ? (
             entries.map((entryItem) => (
               <div key={entryItem.id} className="bg-background rounded-xl shadow-md p-6 border-l-4 border-accent">
+                {entryItem.isPublic && <span className="text-xs font-semibold text-secondary bg-secondary/10 py-1 px-2 rounded-full mb-2 inline-block">Público</span>}
                 <p className="text-text-secondary leading-relaxed mb-3">{entryItem.text}</p>
                 <p className="text-sm text-gray-400 font-light">
                   {new Date(entryItem.timestamp.seconds * 1000).toLocaleDateString('pt-BR', { year: 'numeric', month: 'long', day: 'numeric' })}

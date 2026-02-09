@@ -21,6 +21,7 @@ export function Header() {
         <ul className="flex space-x-8 items-center text-text-secondary font-medium">
           <li><Link to="/" className="hover:text-text-primary transition-colors">Home</Link></li>
           <li><Link to="/about" className="hover:text-text-primary transition-colors">Sobre</Link></li>
+          <li><Link to="/public-feed" className="hover:text-text-primary transition-colors">Feed</Link></li>
           <li><Link to="/gratitude-journal" className="hover:text-text-primary transition-colors">Diário</Link></li>
           {user ? (
             <li className='flex items-center'>
