@@ -5,17 +5,31 @@ service cloud.firestore {
 
     match /entries/{entryId} {
       // Allow reading public entries, or entries owned by the user.
-      // This rule is evaluated for every document a query tries to return.
-      // For public feeds, the query is `where('isPublic', '==', true)`, so every document
-      // will pass the `resource.data.isPublic == true` check.
-      // This also allows unauthenticated users to see the public feed.
       allow read: if resource.data.isPublic == true || (request.auth != null && request.auth.uid == resource.data.authorId);
       
+      // Allow creating a new entry.
       allow create: if request.auth != null && request.auth.uid == request.resource.data.authorId
                     && request.resource.data.likesCount == 0
                     && request.resource.data.commentsCount == 0;
       
-      allow update: if request.auth != null && request.auth.uid == resource.data.authorId;
+      // Allow the author to update their own entry.
+      // Also, allow any authenticated user to update the likes and comments count,
+      // as long as they don't change any other fields. This is crucial for the
+      // like and comment transactions to succeed for non-authors.
+      allow update: if request.auth != null && (
+        (request.auth.uid == resource.data.authorId) ||
+        (
+          (
+            request.resource.data.likesCount != resource.data.likesCount ||
+            request.resource.data.commentsCount != resource.data.commentsCount
+          ) &&
+          request.resource.data.text == resource.data.text &&
+          request.resource.data.authorId == resource.data.authorId &&
+          request.resource.data.isPublic == resource.data.isPublic
+        )
+      );
+
+      // Allow the author to delete their own entry.
       allow delete: if request.auth != null && request.auth.uid == resource.data.authorId;
 
       match /likes/{likeId} {
