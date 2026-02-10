@@ -1,83 +1,104 @@
-import { useEffect, useState } from 'react';
-import { Wordcloud } from '@visx/wordcloud';
-import { collection, getDocs, query, where } from 'firebase/firestore';
-import { db } from '../services/firebase';
-import { useAuth } from '../contexts/AuthContext';
+import React, { useEffect, useState } from 'react';
+import cloud from 'd3-cloud';
 
-interface WordData {
-  text: string;
-  value: number;
+// A interface para uma única entrada do diário, que agora corresponde à estrutura de GratitudeJournal
+interface JournalEntry {
+    text: string;
 }
 
-// Lista de stopwords para filtrar palavras comuns
-const stopwords = new Set([
-    'a', 'o', 'e', 'ou', 'de', 'do', 'da', 'dos', 'das', 'em', 'no', 'na', 'nos', 'nas', 'com', 'por', 'para', 
-    'pelo', 'pela', 'pelos', 'pelas', 'que', 'eu', 'você', 'ele', 'ela', 'nós', 'vocês', 'eles', 'elas', 
-    'meu', 'minha', 'meus', 'minhas', 'seu', 'sua', 'seus', 'suas', 'um', 'uma', 'uns', 'umas', 'estou', 'sou', 'fui'
-]);
+// As props que o componente ProbabilityCloud espera receber
+interface ProbabilityCloudProps {
+    entries: JournalEntry[];
+}
 
-const processText = (text: string): WordData[] => {
-    const words = text.toLowerCase().match(/\b(\w+)\b/g) || [];
-    const wordFrequencies: { [key: string]: number } = {};
+// Propriedades de uma palavra após o cálculo do layout pelo d3-cloud
+interface WordData extends cloud.Word {
+    text?: string;
+    size?: number;
+    x?: number;
+    y?: number;
+    rotate?: number;
+}
 
-    for (const word of words) {
-        if (!stopwords.has(word) && word.length > 2) { // Filtra palavras curtas
-            wordFrequencies[word] = (wordFrequencies[word] || 0) + 1;
-        }
-    }
+// Paleta de cores para a nuvem de palavras
+const colors = ["#6366F1", "#818CF8", "#A5B4FC", "#C7D2FE"];
 
-    return Object.entries(wordFrequencies).map(([text, value]) => ({ text, value }));
-};
-
-export function ProbabilityCloud() {
+export function ProbabilityCloud({ entries }: ProbabilityCloudProps) {
     const [words, setWords] = useState<WordData[]>([]);
-    const { user } = useAuth();
+    const [status, setStatus] = useState('loading');
 
     useEffect(() => {
-        const fetchEntries = async () => {
-            if (!user) return;
-            const q = query(collection(db, 'entries'), where('authorId', '==', user.uid));
-            const querySnapshot = await getDocs(q);
-            const allText = querySnapshot.docs.map(doc => doc.data().text).join(' ');
-            setWords(processText(allText));
-        };
+        if (!entries || entries.length === 0) {
+            setStatus('empty');
+            return;
+        }
 
-        fetchEntries();
-    }, [user]);
+        // Processa as entradas para contar a frequência das palavras
+        const wordCounts = entries.reduce<Record<string, number>>((acc, entry) => {
+            // Corrigido: usa entry.text em vez de entry.content
+            const cleanedText = entry.text.replace(/[.,/#!$%^&*;:{}=\-_`~()?]/g, "").replace(/\s{2,}/g, " ");
+            const wordsInEntry = cleanedText.toLowerCase().split(/\s+/);
 
-    if (words.length === 0) {
-        return <p className="text-center text-text-secondary">Comece a escrever no seu diário para ver sua nuvem de palavras!</p>;
+            wordsInEntry.filter(word => word.length > 2).forEach(word => {
+                acc[word] = (acc[word] || 0) + 1;
+            });
+            return acc;
+        }, {});
+
+        const data = Object.keys(wordCounts).map(key => ({
+            text: key,
+            value: wordCounts[key] * 10, // Pondera o valor para o tamanho da fonte
+        }));
+
+        if (data.length === 0) {
+            setStatus('empty');
+            return;
+        }
+
+        setStatus('loading');
+        const layout = cloud()
+            .size([500, 300])
+            .words(data.map(d => ({ text: d.text, size: d.value })))
+            .padding(5)
+            .rotate(() => (~~(Math.random() * 6) - 3) * 30)
+            .font("Impact")
+            .fontSize(d => d.size || 10)
+            .on("end", (layoutWords: WordData[]) => {
+                setWords(layoutWords);
+                setStatus('success');
+            });
+
+        layout.start();
+    }, [entries]);
+
+    if (status === 'empty') {
+        return <p className="text-center text-text-secondary">Escreva em seu diário para ver sua nuvem de palavras tomar forma!</p>;
+    }
+
+    if (status === 'loading') {
+        return <p className="text-center text-text-secondary">Gerando sua nuvem de gratidão...</p>;
     }
 
     return (
-        <div className="w-full h-64 bg-primary rounded-xl shadow-lg flex items-center justify-center">
-            <Wordcloud
-                words={words}
-                width={500}
-                height={250}
-                fontSize={(word: WordData) => Math.sqrt(word.value) * 15} // Escala o tamanho da fonte
-                font={'Arial'}
-                padding={2}
-                spiral="archimedean"
-                rotate={0} // Mantém as palavras na horizontal
-            >
-                {(cloudWords) =>
-                    cloudWords.map((w, i) => (
+        <div style={{ width: '100%', maxWidth: '500px', margin: '0 auto' }}>
+            <svg width="100%" viewBox={`0 0 500 300`}>
+                <g transform={`translate(250,150)`}>
+                    {words.map((word, i) => (
                         <text
-                            key={w.text! + i}
-                            fontSize={w.size}
-                            fontFamily={w.font}
-                            x={w.x}
-                            y={w.y}
-                            fill={"#a855f7"} // Cor roxa, alinhada à identidade visual
+                            key={word.text}
+                            fontFamily={word.font || 'Impact'}
+                            fontSize={word.size}
+                            fill={colors[i % colors.length]}
                             textAnchor="middle"
-                            transform={`translate(${w.x}, ${w.y})`}
+                            transform={`translate(${word.x}, ${word.y}) rotate(${word.rotate})`}
+                            className="hover:opacity-80 transition-opacity"
+                            style={{ cursor: 'pointer' }}
                         >
-                            {w.text}
+                            {word.text}
                         </text>
-                    ))
-                }
-            </Wordcloud>
+                    ))}
+                </g>
+            </svg>
         </div>
     );
 }

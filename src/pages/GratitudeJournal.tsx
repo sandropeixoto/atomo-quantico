@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from 'react';
 import { collection, addDoc, getDocs, query, where, orderBy } from 'firebase/firestore';
 import { db } from '../services/firebase';
@@ -18,7 +19,7 @@ const GratitudeJournal = () => {
   const [entries, setEntries] = useState<JournalEntry[]>([]);
   const [isPublic, setIsPublic] = useState(true);
   const { user } = useAuth();
-  const { earnPhotons } = useUserProgressStore(); // Corrigido: usa earnPhotons
+  const { earnPhotons } = useUserProgressStore();
 
   const fetchEntries = async () => {
     if (!user) return;
@@ -51,7 +52,6 @@ const GratitudeJournal = () => {
         commentsCount: 0,
       });
       
-      // Corrigido: concede fótons pela criação da entrada
       earnPhotons('create_entry');
 
       setEntry('');
@@ -110,7 +110,8 @@ const GratitudeJournal = () => {
 
       <div className="bg-background rounded-2xl shadow-lg p-8 mb-12">
           <h2 className="text-3xl font-bold text-text-primary mb-6 text-center">Sua Nuvem de Gratidão</h2>
-          <ProbabilityCloud />
+          {/* A correção é aqui: passamos o estado 'entries' para o componente */}
+          <ProbabilityCloud entries={entries} />
       </div>
 
       <div>

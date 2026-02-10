@@ -1,47 +1,66 @@
+import { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { AtomoQuanticoLogo } from './AtomoQuanticoLogo';
 import { useAuth } from '../contexts/AuthContext';
 import { auth } from '../services/firebase';
-import { LogOut, User } from 'lucide-react'; // Importa o ícone de usuário
+import { LogOut, User, Menu } from 'lucide-react';
+import { Sidebar } from './Sidebar';
+import { StatusQuantico } from './StatusQuântico';
 
 export function Header() {
   const { user } = useAuth();
+  const [isSidebarOpen, setIsSidebarOpen] = useState(false);
 
   const handleLogout = () => {
     auth.signOut();
   };
 
   return (
-    <header className="bg-transparent py-4">
-      <nav className="container mx-auto px-6 flex items-center justify-between">
+    <header className="bg-background/80 backdrop-blur-sm sticky top-0 z-30">
+      <nav className="container mx-auto px-4 sm:px-6 lg:px-8 py-4 flex items-center justify-between">
+        {/* Lado Esquerdo: Logo */}
         <Link to="/" className="flex items-center space-x-3">
           <AtomoQuanticoLogo />
-          <span className="text-xl font-semibold text-text-primary">Átomo Quântico</span>
+          <span className="text-xl font-semibold text-text-primary hidden sm:inline">Átomo Quântico</span>
         </Link>
-        <ul className="flex space-x-8 items-center text-text-secondary font-medium">
-          <li><Link to="/" className="hover:text-text-primary transition-colors">Home</Link></li>
-          <li><Link to="/about" className="hover:text-text-primary transition-colors">Sobre</Link></li>
-          <li><Link to="/public-feed" className="hover:text-text-primary transition-colors">Feed</Link></li>
-          <li><Link to="/gratitude-journal" className="hover:text-text-primary transition-colors">Diário</Link></li>
+
+        {/* Centro: Status Quântico (apenas para usuários logados) */}
+        {user && (
+            <div className="absolute left-1/2 -translate-x-1/2">
+                <StatusQuantico />
+            </div>
+        )}
+
+        {/* Lado Direito: Ícone do Menu e Ações do Usuário */}
+        <div className="flex items-center space-x-4">
           {user ? (
-            <li className='flex items-center space-x-4'>
-              <Link to="/profile" className="flex items-center space-x-2 text-text-secondary hover:text-text-primary transition-colors" title="Meu Perfil">
-                <User size={20} />
-                <span>{user.displayName}</span>
-              </Link>
-              <button 
+             <button 
                 onClick={handleLogout} 
-                className="flex items-center space-x-2 text-text-secondary hover:text-text-primary transition-colors"
+                className="text-text-secondary hover:text-red-500 transition-colors p-2 rounded-full hidden sm:flex"
                 title="Sair"
               >
-                <LogOut size={20} />
+                <LogOut size={22} />
               </button>
-            </li>
           ) : (
-            <li><Link to="/login" className="bg-secondary text-text-primary font-semibold py-2 px-4 rounded-lg hover:opacity-90 transition-opacity">Login</Link></li>
+            <Link 
+                to="/login" 
+                className="bg-secondary text-text-primary font-semibold py-2 px-4 rounded-lg hover:opacity-90 transition-opacity hidden sm:flex"
+            >
+                Login
+            </Link>
           )}
-        </ul>
+          <button 
+            onClick={() => setIsSidebarOpen(true)} 
+            className="text-text-primary p-2" 
+            aria-label="Abrir menu"
+          >
+            <Menu size={28} />
+          </button>
+        </div>
       </nav>
+
+      {/* Renderiza o Sidebar */}
+      <Sidebar isOpen={isSidebarOpen} setIsOpen={setIsSidebarOpen} />
     </header>
   );
 }
