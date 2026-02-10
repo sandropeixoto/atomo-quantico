@@ -1,3 +1,14 @@
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
+@import "tailwindcss";
+
+@theme {
+  /* Cores personalizadas (migradas do seu config js) */
+  --color-primary: #F0F4F8;
+  --color-secondary: #FFDAB9;
+  --color-accent: #E6E6FA;
+  --color-text-primary: #333333;
+  --color-text-secondary: #555555;
+  --color-background: #FFFFFF;
+
+  /* Fontes */
+  --font-sans: 'Poppins', sans-serif;
+}
