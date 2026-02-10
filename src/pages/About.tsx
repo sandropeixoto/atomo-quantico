@@ -1,40 +1,58 @@
-import { Heart, Target } from 'lucide-react';
-
 export function About() {
   return (
-    <div className="max-w-4xl mx-auto py-12 px-4">
-      <h1 className="text-4xl font-bold text-center text-text-primary mb-12">Sobre o Átomo Quântico</h1>
-      
-      <div className="grid md:grid-cols-2 gap-12 items-center">
-        <div className="space-y-6">
-          <div className="flex items-start space-x-4">
-            <div className="bg-accent rounded-full p-3">
-              <Heart size={24} className="text-secondary" />
-            </div>
-            <div>
-              <h2 className="text-2xl font-semibold text-text-primary">Nossa Filosofia</h2>
-              <p className="text-text-secondary leading-relaxed mt-2">Acreditamos que a gratidão é uma semente. Quando a cultivamos, ela floresce em uma vida mais positiva e alegre. O Átomo Quântico nasceu do desejo de criar um espaço simples e belo para essa prática transformadora.</p>
-            </div>
-          </div>
-          
-          <div className="flex items-start space-x-4">
-            <div className="bg-accent rounded-full p-3">
-              <Target size={24} className="text-secondary" />
-            </div>
-            <div>
-              <h2 className="text-2xl font-semibold text-text-primary">Nossa Missão</h2>
-              <p className="text-text-secondary leading-relaxed mt-2">Nossa missão é fornecer uma ferramenta intuitiva e acolhedora que inspire a reflexão e a apreciação pelas pequenas coisas. Queremos que cada "átomo" de gratidão contribua para o seu bem-estar quântico.</p>
-            </div>
-          </div>
-        </div>
+    <div className="max-w-4xl mx-auto text-text-primary">
+      <h1 className="text-4xl font-bold text-center mb-12">Sobre o Átomo Quântico</h1>
+
+      {/* Seção Sobre */}
+      <section className="bg-primary p-8 rounded-xl shadow-lg mb-12">
+        <h2 className="text-3xl font-bold mb-4">O Que É o Átomo Quântico?</h2>
+        <p className="text-text-secondary leading-relaxed">
+          O Átomo Quântico é uma aplicação web de código aberto, construída para ser um espaço seguro e acolhedor onde os usuários podem cultivar o hábito da gratidão. Através de um diário pessoal, é possível registrar pensamentos e momentos pelos quais se é grato, com a opção de compartilhar essas reflexões com a comunidade.
+        </p>
+      </section>
+
+      {/* Seção de Gamificação (FAQ) */}
+      <section className="bg-primary p-8 rounded-xl shadow-lg">
+        <h2 className="text-3xl font-bold mb-8">Guia da Gamificação: Entenda Sua Jornada</h2>
         
-        <div className="flex justify-center">
-          {/* Placeholder for a future image or illustration */}
-          <div className="w-64 h-64 bg-accent rounded-full flex items-center justify-center">
-            <p className="text-text-secondary italic">"A gratidão dá sentido ao nosso passado, traz paz para o hoje e cria uma visão para o amanhã."</p>
+        <div className="space-y-8">
+          {/* Fótons e Níveis */}
+          <div>
+            <h3 className="text-2xl font-semibold mb-2 text-secondary">O que são Fótons e Níveis?</h3>
+            <p className="text-text-secondary leading-relaxed">
+              Cada vez que você faz uma anotação em seu diário, você ganha <strong>Fótons</strong>, que são como seus pontos de energia no aplicativo. Acumular fótons permite que você suba de <strong>Nível</strong>. Pense nisso como uma representação do seu progresso e comprometimento contínuo com a prática da gratidão.
+            </p>
           </div>
+
+          {/* Nível de Entropia */}
+          <div>
+            <h3 className="text-2xl font-semibold mb-2 text-secondary">O que é o Nível de Entropia?</h3>
+            <p className="text-text-secondary leading-relaxed">
+              O Nível de Entropia é uma medida da sua <strong>consistência</strong>. Ele reflete a sua sequência de anotações diárias e possui três estados:
+            </p>
+            <ul className="list-disc list-inside mt-4 space-y-2 text-text-secondary">
+              <li><strong>Alta Entropia:</strong> Uma sequência de 0 a 2 dias. Representa o início da sua jornada ou uma pequena pausa.</li>
+              <li><strong>Estado Estacionário:</strong> Uma sequência de 3 a 6 dias. Você está começando a construir um hábito sólido!</li>
+              <li><strong>Coerência Quântica:</strong> Uma sequência de 7 dias ou mais. Você alcançou um estado de prática consistente e focada!</li>
+            </ul>
+          </div>
+
+          {/* Conquistas (Badges) */}
+          <div>
+            <h3 className="text-2xl font-semibold mb-2 text-secondary">O que são as Conquistas (Badges)?</h3>
+            <p className="text-text-secondary leading-relaxed">
+              Conquistas são recompensas especiais que você desbloqueia ao atingir marcos específicos em sua jornada. Elas celebram seu progresso e dedicação. Alguns exemplos incluem:
+            </p>
+            <ul className="list-disc list-inside mt-4 space-y-2 text-text-secondary">
+              <li><strong>Nível X:</strong> Desbloqueado sempre que você sobe de nível.</li>
+              <li><strong>Observador (Bronze):</strong> Concedido ao fazer suas primeiras 7 anotações.</li>
+              <li><strong>Coerente (Prata):</strong> Concedido ao manter uma sequência de 7 dias consecutivos.</li>
+               <li><strong>Status de Entropia:</strong> Concedido ao alcançar novos status, como o 'Estado Estacionário'.</li>
+            </ul>
+          </div>
+
         </div>
-      </div>
+      </section>
     </div>
   );
 }

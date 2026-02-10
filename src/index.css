@@ -1,13 +1,13 @@
 @import "tailwindcss";
 
 @theme {
-  /* Cores personalizadas (migradas do seu config js) */
-  --color-primary: #F0F4F8;
-  --color-secondary: #FFDAB9;
-  --color-accent: #E6E6FA;
-  --color-text-primary: #333333;
-  --color-text-secondary: #555555;
-  --color-background: #FFFFFF;
+  /* Cores personalizadas para o tema dark mode quântico */
+  --color-primary: #1A1829; /* Cor de fundo de cards e elementos primários */
+  --color-secondary: #9F50FF; /* Acento violeta/roxo */
+  --color-accent: #00E5FF; /* Acento azul neon */
+  --color-text-primary: #FFFFFF; /* Texto principal */
+  --color-text-secondary: #B0B0B0; /* Texto secundário e ícones */
+  --color-background: #0D0B1A; /* Cor de fundo principal */
 
   /* Fontes */
   --font-sans: 'Poppins', sans-serif;

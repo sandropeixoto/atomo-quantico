@@ -2,6 +2,8 @@ import React, { useState, useEffect } from 'react';
 import { collection, addDoc, getDocs, query, where, orderBy } from 'firebase/firestore';
 import { db } from '../services/firebase';
 import { useAuth } from '../contexts/AuthContext';
+import { useUserProgressStore } from '../stores/userProgressStore';
+import { ProbabilityCloud } from '../components/ProbabilityCloud';
 import { PenSquare } from 'lucide-react';
 
 interface JournalEntry {
@@ -16,6 +18,7 @@ const GratitudeJournal = () => {
   const [entries, setEntries] = useState<JournalEntry[]>([]);
   const [isPublic, setIsPublic] = useState(true);
   const { user } = useAuth();
+  const { addGratitudeEntry } = useUserProgressStore();
 
   const fetchEntries = async () => {
     if (!user) return;
@@ -49,6 +52,7 @@ const GratitudeJournal = () => {
       });
       setEntry('');
       setIsPublic(true);
+      addGratitudeEntry();
       fetchEntries();
     } catch (e) {
       console.error('Error adding document: ', e);
@@ -71,7 +75,7 @@ const GratitudeJournal = () => {
         <form onSubmit={handleSubmit}>
           <h2 className="text-2xl font-semibold text-text-primary mb-4">Pelo que você é grato hoje?</h2>
           <textarea
-            className="w-full p-4 border border-gray-200 rounded-lg bg-gray-50 focus:ring-2 focus:ring-secondary focus:outline-none transition-shadow"
+            className="w-full p-4 bg-primary text-text-primary border border-gray-700 rounded-lg focus:ring-2 focus:ring-secondary focus:outline-none transition-shadow placeholder:text-gray-400"
             rows={5}
             placeholder="Comece a escrever..."
             value={entry}
@@ -99,6 +103,11 @@ const GratitudeJournal = () => {
             <span>Registrar Gratidão</span>
           </button>
         </form>
+      </div>
+
+      <div className="bg-background rounded-2xl shadow-lg p-8 mb-12">
+          <h2 className="text-3xl font-bold text-text-primary mb-6 text-center">Sua Nuvem de Gratidão</h2>
+          <ProbabilityCloud />
       </div>
 
       <div>
