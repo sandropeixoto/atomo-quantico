@@ -4,56 +4,55 @@ service cloud.firestore {
   match /databases/{database}/documents {
 
     match /entries/{entryId} {
-      // Allow reading public entries, or entries owned by the user.
+      // Qualquer um pode ler posts públicos. Usuários logados podem ler seus próprios posts privados.
       allow read: if resource.data.isPublic == true || (request.auth != null && request.auth.uid == resource.data.authorId);
       
-      // Allow creating a new entry.
+      // Usuários logados podem criar novas entradas para si mesmos.
       allow create: if request.auth != null && request.auth.uid == request.resource.data.authorId
                     && request.resource.data.likesCount == 0
                     && request.resource.data.commentsCount == 0;
       
-      // Allow the author to update their own entry.
-      // Also, allow any authenticated user to update the likes and comments count,
-      // as long as they don't change any other fields. This is crucial for the
-      // like and comment transactions to succeed for non-authors.
+      // O autor pode atualizar completamente seu post.
+      // Qualquer usuário autenticado pode atualizar APENAS a contagem de likes e comentários.
       allow update: if request.auth != null && (
         (request.auth.uid == resource.data.authorId) ||
-        (
-          (
-            request.resource.data.likesCount != resource.data.likesCount ||
-            request.resource.data.commentsCount != resource.data.commentsCount
-          ) &&
-          request.resource.data.text == resource.data.text &&
-          request.resource.data.authorId == resource.data.authorId &&
-          request.resource.data.isPublic == resource.data.isPublic
-        )
+        (request.resource.data.diff(resource.data).affectedKeys().hasOnly(['likesCount', 'commentsCount']))
       );
 
-      // Allow the author to delete their own entry.
+      // O autor pode deletar seu próprio post.
       allow delete: if request.auth != null && request.auth.uid == resource.data.authorId;
 
-      match /likes/{likeId} {
-        // Allow reading likes for any public post.
-        // Allow creating/deleting your own like.
-        allow read: if get(/databases/$(database)/documents/entries/$(entryId)).data.isPublic == true || (request.auth != null && get(/databases/$(database)/documents/entries/$(entryId)).data.authorId == request.auth.uid);
-        allow create: if request.auth != null && request.auth.uid == likeId;
-        allow delete: if request.auth != null && request.auth.uid == likeId;
+      match /likes/{userId} {
+        // A leitura de likes é permitida em posts públicos ou pelo autor do post.
+        allow read: if get(/databases/$(database)/documents/entries/$(entryId)).data.isPublic == true 
+                    || (request.auth != null && get(/databases/$(database)/documents/entries/$(entryId)).data.authorId == request.auth.uid);
+
+        // Usuário só pode criar um like para si mesmo, e o ID do documento de like deve ser seu UID.
+        allow create: if request.auth != null && request.auth.uid == request.resource.data.userId && request.auth.uid == userId;
+
+        // Usuário só pode deletar seu próprio like.
+        allow delete: if request.auth != null && request.auth.uid == userId;
       }
 
       match /comments/{commentId} {
-        // Allow reading comments for any public post.
-        // Allow creating a comment if authenticated.
-        // Allow updating/deleting your own comment.
-        allow read: if get(/databases/$(database)/documents/entries/$(entryId)).data.isPublic == true || (request.auth != null && get(/databases/$(database)/documents/entries/$(entryId)).data.authorId == request.auth.uid);
+        // A leitura de comentários é permitida em posts públicos ou pelo autor do post.
+        allow read: if get(/databases/$(database)/documents/entries/$(entryId)).data.isPublic == true 
+                    || (request.auth != null && get(/databases/$(database)/documents/entries/$(entryId)).data.authorId == request.auth.uid);
+        
+        // Usuário pode criar um comentário se for o autor do comentário.
         allow create: if request.auth != null && request.auth.uid == request.resource.data.authorId;
+        
+        // O autor do comentário pode atualizá-lo ou deletá-lo.
         allow update, delete: if request.auth != null && request.auth.uid == resource.data.authorId;
       }
     }
 
     match /users/{userId} {
+      // Qualquer um pode ler perfis de usuário (necessário para ver nomes de autor).
       allow read: if true;
-      allow create: if request.auth != null && request.auth.uid == userId;
-      allow update: if request.auth != null && request.auth.uid == userId;
+      
+      // Usuário só pode criar ou atualizar seu próprio perfil.
+      allow create, update: if request.auth != null && request.auth.uid == userId;
     }
   }
 }

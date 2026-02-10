@@ -1,120 +1,121 @@
 import { create } from 'zustand';
-import { doc, runTransaction, getDoc } from 'firebase/firestore';
-import { db } from '../services/firebase'; // Caminho corrigido
+import { doc, getDoc, runTransaction } from 'firebase/firestore';
+import { db } from '../services/firebase';
 
-const POINTS_PER_ENTRY = 10;
-const PHOTONS_PER_LEVEL = 100;
+// --- CONFIGURAÇÕES DE GAMEFICAÇÃO ---
+const POINTS_PER_LIKE = 1;
+const POINTS_PER_COMMENT = 3;
+const POINTS_PER_ENTRY = 5; // Recompensa por criar uma nova entrada de gratidão
 
-// --- Definição dos Status de Entropia ---
-const ENTROPY_STATUS = {
-  HIGH: 'Alta Entropia',          // streak = 0-2
-  STATIONARY: 'Estado Estacionário', // streak = 3-6
-  COHERENCE: 'Coerência Quântica'  // streak >= 7
-};
+const levels = [
+  { level: 1, name: 'Observador Quântico', minPhotons: 0 },
+  { level: 2, name: 'Partícula Emergente', minPhotons: 20 },
+  { level: 3, name: 'Viajante Cósmico', minPhotons: 50 },
+  { level: 4, name: 'Explorador Galáctico', minPhotons: 100 },
+  { level: 5, name: 'Mestre do Universo', minPhotons: 250 },
+];
 
-// --- Definição dos Badges ---
-const BADGES = {
-  OBSERVER: 'Observador (Bronze)', // 7 anotações
-  COHERENT: 'Coerente (Prata)',    // 7 dias de streak
-  RESONANCE: 'Ressonância (Ouro)'   // 50 de impacto
-};
-
-// --- Definição das Recompensas de Interação ---
-const REWARDS = {
-  LIKE: { giver: 1, receiver: 2 },
-  COMMENT: { giver: 5, receiver: 5 }
-};
-
-const IMPACT_THRESHOLDS = {
-    RESONANCE: 50,
+// --- TIPOS E INTERFACES ---
+interface LevelInfo {
+  level: number;
+  levelName: string;
+  progress: number;
 }
 
 interface UserProgressState {
+  userId: string | null;
   photons: number;
-  streak: number;
   level: number;
-  entropyStatus: string;
-  lastEntryDate: string | null;
-  badges: string[];
-  totalEntries: number;
-  impactScore: number; // Novo estado para "Impacto"
-  addGratitudeEntry: () => void;
-  interactWithPost: (interactionType: 'like' | 'comment', authorId: string) => Promise<void>; // Nova ação
+  levelName: string;
+  progress: number;
+  isInitialized: boolean; // Flag para saber se os dados já foram carregados
+  fetchUserProgress: (uid: string) => Promise<void>;
+  earnPhotons: (action: 'like' | 'comment' | 'create_entry', postAuthorId?: string) => Promise<void>;
+  clearUserProgress: () => void;
 }
 
-const isConsecutiveDay = (lastDate: string, newDate: Date) => {
-  const last = new Date(lastDate);
-  const nextDay = new Date(last);
-  nextDay.setDate(last.getDate() + 1);
-  return newDate.toDateString() === nextDay.toDateString();
+// --- LÓGICA AUXILIAR ---
+const calculateLevel = (photons: number): LevelInfo => {
+  const currentLevelInfo = levels.slice().reverse().find(l => photons >= l.minPhotons) || levels[0];
+  const nextLevelInfo = levels.find(l => l.level === currentLevelInfo.level + 1);
+
+  if (nextLevelInfo) {
+    const photonsInCurrentLevel = photons - currentLevelInfo.minPhotons;
+    const photonsForNextLevel = nextLevelInfo.minPhotons - currentLevelInfo.minPhotons;
+    const progress = (photonsInCurrentLevel / photonsForNextLevel) * 100;
+    return { level: currentLevelInfo.level, levelName: currentLevelInfo.name, progress: Math.min(progress, 100) };
+  }
+
+  return { level: currentLevelInfo.level, levelName: currentLevelInfo.name, progress: 100 }; // Nível máximo
 };
 
-const isSameDay = (lastDate: string, newDate: Date) => {
-  return new Date(lastDate).toDateString() === newDate.toDateString();
-};
+const getInitialState = () => ({
+    userId: null,
+    photons: 0,
+    level: 1,
+    levelName: 'Observador Quântico',
+    progress: 0,
+    isInitialized: false,
+});
 
-const getEntropyStatus = (streak: number): string => {
-  if (streak >= 7) return ENTROPY_STATUS.COHERENCE;
-  if (streak >= 3) return ENTROPY_STATUS.STATIONARY;
-  return ENTROPY_STATUS.HIGH;
-}
-
+// --- CRIAÇÃO DA STORE (ZUSTAND) ---
 export const useUserProgressStore = create<UserProgressState>((set, get) => ({
-  photons: 0,
-  streak: 0,
-  level: 1,
-  entropyStatus: ENTROPY_STATUS.HIGH,
-  lastEntryDate: null,
-  badges: [],
-  totalEntries: 0,
-  impactScore: 0,
+  ...getInitialState(),
 
-  addGratitudeEntry: () => {
-    // ... (lógica existente, sem alterações)
+  // 1. Busca os dados do Firestore e inicializa a store
+  fetchUserProgress: async (uid: string) => {
+    if (get().isInitialized && get().userId === uid) return; // Já inicializado para este usuário
+
+    const userRef = doc(db, 'users', uid);
+    const userDoc = await getDoc(userRef);
+
+    if (userDoc.exists()) {
+      const data = userDoc.data();
+      const photons = data.photons || 0;
+      const { level, levelName, progress } = calculateLevel(photons);
+      set({ userId: uid, photons, level, levelName, progress, isInitialized: true });
+    } else {
+      // Se o usuário não tem um documento, o criamos com valores iniciais
+      await runTransaction(db, async (transaction) => {
+          transaction.set(userRef, { photons: 0, streak: 0, lastEntryDate: null });
+      });
+      set({ ...getInitialState(), userId: uid, isInitialized: true });
+    }
   },
 
-  interactWithPost: async (interactionType: 'like' | 'comment', authorId: string) => {
-    const reward = interactionType === 'like' ? REWARDS.LIKE : REWARDS.COMMENT;
+  // 2. Adiciona fótons, SALVA no Firestore e atualiza o estado
+  earnPhotons: async (action, postAuthorId) => {
+    const uid = get().userId;
+    if (!uid) return; // Não faz nada se não houver usuário logado
+    if (action !== 'create_entry' && uid === postAuthorId) return; // Não ganha pontos ao interagir com os próprios posts
 
-    // 1. Atualiza o estado local do usuário ativo (quem interage)
-    set(state => ({
-      photons: state.photons + reward.giver,
-      level: Math.floor((state.photons + reward.giver) / PHOTONS_PER_LEVEL) + 1,
-    }));
+    let points = 0;
+    if (action === 'like') points = POINTS_PER_LIKE;
+    else if (action === 'comment') points = POINTS_PER_COMMENT;
+    else if (action === 'create_entry') points = POINTS_PER_ENTRY;
 
-    // 2. Simula a atualização para o autor do post (backend)
-    console.log(`Simulando transação para o autor ${authorId}...`);
-    
+    if (points === 0) return;
+
+    const userRef = doc(db, 'users', uid);
     try {
-        await runTransaction(db, async (transaction) => {
-            const userProgressRef = doc(db, 'userProgress', authorId);
-            const userProgressSnap = await transaction.get(userProgressRef);
-
-            if (!userProgressSnap.exists()) {
-                console.log(`Documento de progresso para ${authorId} não encontrado.`);
-                return;
-            }
-
-            const authorData = userProgressSnap.data();
-            const newPhotons = (authorData.photons || 0) + reward.receiver;
-            const newImpactScore = (authorData.impactScore || 0) + (interactionType === 'like' ? 1 : 0); // Só likes contam para o impacto
-
-            const newBadges = authorData.badges || [];
-            if (newImpactScore >= IMPACT_THRESHOLDS.RESONANCE && !newBadges.includes(BADGES.RESONANCE)) {
-                newBadges.push(BADGES.RESONANCE);
-            }
-
-            transaction.update(userProgressRef, { 
-                photons: newPhotons,
-                impactScore: newImpactScore,
-                badges: newBadges
-             });
-        });
-
-        console.log(`Transação para ${authorId} concluída com sucesso.`);
-
+      await runTransaction(db, async (transaction) => {
+        const userDoc = await transaction.get(userRef);
+        const currentPhotons = userDoc.exists() ? userDoc.data().photons || 0 : 0;
+        const newPhotons = currentPhotons + points;
+        
+        transaction.set(userRef, { photons: newPhotons }, { merge: true });
+        
+        // Após a transação, atualiza o estado local
+        const { level, levelName, progress } = calculateLevel(newPhotons);
+        set({ photons: newPhotons, level, levelName, progress });
+      });
     } catch (error) {
-        console.error("Erro na transação de interação:", error);
+      console.error("Erro ao conceder fótons: ", error);
     }
+  },
+
+  // 3. Limpa o estado no logout
+  clearUserProgress: () => {
+    set(getInitialState());
   },
 }));

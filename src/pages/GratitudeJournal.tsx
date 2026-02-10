@@ -18,7 +18,7 @@ const GratitudeJournal = () => {
   const [entries, setEntries] = useState<JournalEntry[]>([]);
   const [isPublic, setIsPublic] = useState(true);
   const { user } = useAuth();
-  const { addGratitudeEntry } = useUserProgressStore();
+  const { earnPhotons } = useUserProgressStore(); // Corrigido: usa earnPhotons
 
   const fetchEntries = async () => {
     if (!user) return;
@@ -50,10 +50,13 @@ const GratitudeJournal = () => {
         likesCount: 0,
         commentsCount: 0,
       });
+      
+      // Corrigido: concede fótons pela criação da entrada
+      earnPhotons('create_entry');
+
       setEntry('');
       setIsPublic(true);
-      addGratitudeEntry();
-      fetchEntries();
+      fetchEntries(); // Atualiza a lista de entradas
     } catch (e) {
       console.error('Error adding document: ', e);
     }
