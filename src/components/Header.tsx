@@ -1,11 +1,4 @@
-import { useState } from 'react';
-import { Link } from 'react-router-dom';
-import { AtomoQuanticoLogo } from './AtomoQuanticoLogo';
-import { useAuth } from '../contexts/AuthContext';
-import { auth } from '../services/firebase';
-import { LogOut, User, Menu } from 'lucide-react';
-import { Sidebar } from './Sidebar';
-import { StatusQuantico } from './StatusQuântico';
+import StreakCounter from './StreakCounter';
 
 export function Header() {
   const { user } = useAuth();
@@ -26,32 +19,33 @@ export function Header() {
 
         {/* Centro: Status Quântico (apenas para usuários logados) */}
         {user && (
-            <div className="absolute left-1/2 -translate-x-1/2">
-                <StatusQuantico />
-            </div>
+          <div className="absolute left-1/2 -translate-x-1/2 flex items-center gap-4 hidden md:flex">
+            <StatusQuantico />
+            <StreakCounter />
+          </div>
         )}
 
         {/* Lado Direito: Ícone do Menu e Ações do Usuário */}
         <div className="flex items-center space-x-4">
           {user ? (
-             <button 
-                onClick={handleLogout} 
-                className="text-text-secondary hover:text-red-500 transition-colors p-2 rounded-full hidden sm:flex"
-                title="Sair"
-              >
-                <LogOut size={22} />
-              </button>
-          ) : (
-            <Link 
-                to="/login" 
-                className="bg-secondary text-text-primary font-semibold py-2 px-4 rounded-lg hover:opacity-90 transition-opacity hidden sm:flex"
+            <button
+              onClick={handleLogout}
+              className="text-text-secondary hover:text-red-500 transition-colors p-2 rounded-full hidden sm:flex"
+              title="Sair"
             >
-                Login
+              <LogOut size={22} />
+            </button>
+          ) : (
+            <Link
+              to="/login"
+              className="bg-secondary text-text-primary font-semibold py-2 px-4 rounded-lg hover:opacity-90 transition-opacity hidden sm:flex"
+            >
+              Login
             </Link>
           )}
-          <button 
-            onClick={() => setIsSidebarOpen(true)} 
-            className="text-text-primary p-2" 
+          <button
+            onClick={() => setIsSidebarOpen(true)}
+            className="text-text-primary p-2"
             aria-label="Abrir menu"
           >
             <Menu size={28} />

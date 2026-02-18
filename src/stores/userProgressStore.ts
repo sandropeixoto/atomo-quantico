@@ -28,6 +28,9 @@ interface UserProgressState {
   level: number;
   levelName: string;
   progress: number;
+  currentStreak: number;
+  longestStreak: number;
+  lastPostedDate: string | null;
   isInitialized: boolean; // Flag para saber se os dados já foram carregados
   fetchUserProgress: (uid: string) => Promise<void>;
   earnPhotons: (action: 'like' | 'comment' | 'create_entry', postAuthorId?: string) => Promise<void>;
@@ -50,12 +53,15 @@ const calculateLevel = (photons: number): LevelInfo => {
 };
 
 const getInitialState = () => ({
-    userId: null,
-    photons: 0,
-    level: 1,
-    levelName: 'Observador Quântico',
-    progress: 0,
-    isInitialized: false,
+  userId: null,
+  photons: 0,
+  level: 1,
+  levelName: 'Observador Quântico',
+  progress: 0,
+  currentStreak: 0,
+  longestStreak: 0,
+  lastPostedDate: null,
+  isInitialized: false,
 });
 
 // --- CRIAÇÃO DA STORE (ZUSTAND) ---
@@ -72,12 +78,30 @@ export const useUserProgressStore = create<UserProgressState>((set, get) => ({
     if (userDoc.exists()) {
       const data = userDoc.data();
       const photons = data.photons || 0;
+      const currentStreak = data.currentStreak || 0;
+      const longestStreak = data.longestStreak || 0;
+      const lastPostedDate = data.lastPostedDate || null;
       const { level, levelName, progress } = calculateLevel(photons);
-      set({ userId: uid, photons, level, levelName, progress, isInitialized: true });
+      set({
+        userId: uid,
+        photons,
+        level,
+        levelName,
+        progress,
+        currentStreak,
+        longestStreak,
+        lastPostedDate,
+        isInitialized: true
+      });
     } else {
       // Se o usuário não tem um documento, o criamos com valores iniciais
       await runTransaction(db, async (transaction) => {
-          transaction.set(userRef, { photons: 0, streak: 0, lastEntryDate: null });
+        transaction.set(userRef, {
+          photons: 0,
+          currentStreak: 0,
+          longestStreak: 0,
+          lastPostedDate: null
+        });
       });
       set({ ...getInitialState(), userId: uid, isInitialized: true });
     }
@@ -100,14 +124,60 @@ export const useUserProgressStore = create<UserProgressState>((set, get) => ({
     try {
       await runTransaction(db, async (transaction) => {
         const userDoc = await transaction.get(userRef);
-        const currentPhotons = userDoc.exists() ? userDoc.data().photons || 0 : 0;
+        const userData = userDoc.exists() ? userDoc.data() : {};
+        const currentPhotons = userData.photons || 0;
         const newPhotons = currentPhotons + points;
-        
-        transaction.set(userRef, { photons: newPhotons }, { merge: true });
-        
+
+        // Lógica de Streak (Apenas para criação de entradas)
+        let newStreak = userData.currentStreak || 0;
+        let newLongestStreak = userData.longestStreak || 0;
+        let newLastPostedDate = userData.lastPostedDate || null;
+
+        if (action === 'create_entry') {
+          const today = new Date().toISOString().split('T')[0];
+          const lastPosted = userData.lastPostedDate;
+
+          if (lastPosted !== today) {
+            if (lastPosted) {
+              const lastDate = new Date(lastPosted);
+              const currentDate = new Date(today);
+              const diffTime = Math.abs(currentDate.getTime() - lastDate.getTime());
+              const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+
+              if (diffDays === 1) {
+                newStreak += 1;
+              } else {
+                newStreak = 1;
+              }
+            } else {
+              newStreak = 1;
+            }
+            newLastPostedDate = today;
+
+            if (newStreak > newLongestStreak) {
+              newLongestStreak = newStreak;
+            }
+          }
+        }
+
+        transaction.set(userRef, {
+          photons: newPhotons,
+          currentStreak: newStreak,
+          longestStreak: newLongestStreak,
+          lastPostedDate: newLastPostedDate
+        }, { merge: true });
+
         // Após a transação, atualiza o estado local
         const { level, levelName, progress } = calculateLevel(newPhotons);
-        set({ photons: newPhotons, level, levelName, progress });
+        set({
+          photons: newPhotons,
+          level,
+          levelName,
+          progress,
+          currentStreak: newStreak,
+          longestStreak: newLongestStreak,
+          lastPostedDate: newLastPostedDate
+        });
       });
     } catch (error) {
       console.error("Erro ao conceder fótons: ", error);
