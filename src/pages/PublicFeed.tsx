@@ -29,14 +29,14 @@ const PublicFeed = () => {
     const querySnapshot = await getDocs(q);
     const publicEntriesData: PublicEntry[] = querySnapshot.docs.map(doc => ({ id: doc.id, ...(doc.data() as any) }));
     const authorIds = [...new Set(publicEntriesData.map(entry => entry.authorId))];
-    if(authorIds.length === 0) return;
+    if (authorIds.length === 0) return;
     const usersRef = collection(db, 'users');
-    const usersData = {};
+    const usersData: Record<string, any> = {};
     for (let i = 0; i < authorIds.length; i += 10) {
-        const chunk = authorIds.slice(i, i + 10);
-        const usersQuery = query(usersRef, where('__name__', 'in', chunk));
-        const usersSnapshot = await getDocs(usersQuery);
-        usersSnapshot.docs.forEach(doc => usersData[doc.id] = doc.data());
+      const chunk = authorIds.slice(i, i + 10);
+      const usersQuery = query(usersRef, where('__name__', 'in', chunk));
+      const usersSnapshot = await getDocs(usersQuery);
+      usersSnapshot.docs.forEach(doc => usersData[doc.id] = doc.data());
     }
     publicEntriesData.forEach(entry => { entry.authorName = usersData[entry.authorId]?.displayName || 'Anônimo'; });
     setEntries(publicEntriesData);
@@ -60,9 +60,9 @@ const PublicFeed = () => {
     if (!user) { navigate('/login'); return; }
     const isLiked = likedEntries.includes(entryId);
     if (!isLiked) {
-        earnPhotons('like', authorId);
-        setShowReward(entryId);
-        setTimeout(() => setShowReward(null), 1000);
+      earnPhotons('like', authorId);
+      setShowReward(entryId);
+      setTimeout(() => setShowReward(null), 1000);
     }
     const entryRef = doc(db, 'entries', entryId);
     const likeRef = doc(db, 'entries', entryId, 'likes', user.uid);
@@ -76,7 +76,7 @@ const PublicFeed = () => {
         else transaction.set(likeRef, { userId: user.uid });
       });
       setLikedEntries(prev => isLiked ? prev.filter(id => id !== entryId) : [...prev, entryId]);
-      setEntries(prev => prev.map(e => e.id === entryId ? {...e, likesCount: e.likesCount + (isLiked ? -1 : 1)} : e));
+      setEntries(prev => prev.map(e => e.id === entryId ? { ...e, likesCount: e.likesCount + (isLiked ? -1 : 1) } : e));
     } catch (e) { console.error(e); }
   };
 

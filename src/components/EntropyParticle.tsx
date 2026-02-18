@@ -30,7 +30,7 @@ export function EntropyParticle() {
 
     const currentStyle = {
         ...particleStyles.base,
-        ...(particleStyles.status[entropyStatus] || particleStyles.status['Alta Entropia'])
+        ...(particleStyles.status[entropyStatus as keyof typeof particleStyles.status] || particleStyles.status['Alta Entropia'])
     };
 
     return (

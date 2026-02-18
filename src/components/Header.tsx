@@ -1,3 +1,11 @@
+import { useState } from 'react';
+import { Link } from 'react-router-dom';
+import { AtomoQuanticoLogo } from './AtomoQuanticoLogo';
+import { useAuth } from '../contexts/AuthContext';
+import { auth } from '../services/firebase';
+import { LogOut, Menu } from 'lucide-react';
+import { Sidebar } from './Sidebar';
+import { StatusQuantico } from './StatusQuântico';
 import StreakCounter from './StreakCounter';
 
 export function Header() {

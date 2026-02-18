@@ -22,12 +22,12 @@ const JourneySummary = () => {
 
   if (!user) {
     return (
-        <div className="text-center mb-12">
-            <h1 className="text-5xl font-extrabold text-text-primary mb-3">Bem-vindo ao Átomo de Gratidão</h1>
-            <p className="text-text-secondary text-lg">
-                Seu santuário pessoal para cultivar a gratidão. <Link to="/login" className="text-secondary font-semibold hover:underline">Faça login para iniciar sua jornada</Link>.
-            </p>
-        </div>
+      <div className="text-center mb-12">
+        <h1 className="text-5xl font-extrabold text-text-primary mb-3">Bem-vindo ao Átomo de Gratidão</h1>
+        <p className="text-text-secondary text-lg">
+          Seu santuário pessoal para cultivar a gratidão. <Link to="/login" className="text-secondary font-semibold hover:underline">Faça login para iniciar sua jornada</Link>.
+        </p>
+      </div>
     );
   }
 
@@ -78,13 +78,13 @@ export const Home = () => {
     const publicEntriesData: PublicEntry[] = querySnapshot.docs.map(doc => ({ id: doc.id, ...(doc.data() as any) }));
     const authorIds = [...new Set(publicEntriesData.map(entry => entry.authorId))];
     if (authorIds.length === 0) {
-        setEntries(publicEntriesData);
-        return;
+      setEntries(publicEntriesData);
+      return;
     }
     const usersRef = collection(db, 'users');
     const usersQuery = query(usersRef, where('__name__', 'in', authorIds.slice(0, 10)));
     const usersSnapshot = await getDocs(usersQuery);
-    const usersData = usersSnapshot.docs.reduce((acc, doc) => ({...acc, [doc.id]: doc.data()}), {});
+    const usersData: Record<string, any> = usersSnapshot.docs.reduce((acc, doc) => ({ ...acc, [doc.id]: doc.data() }), {});
     publicEntriesData.forEach(entry => { entry.authorName = usersData[entry.authorId]?.displayName || 'Anônimo'; });
     setEntries(publicEntriesData);
   };
@@ -104,12 +104,12 @@ export const Home = () => {
   }, [user]);
 
   const handleLike = async (entryId: string, authorId: string) => {
-     if (!user) { navigate('/login'); return; }
+    if (!user) { navigate('/login'); return; }
     const isLiked = likedEntries.includes(entryId);
     if (!isLiked) {
-        earnPhotons('like', authorId);
-        setShowReward(entryId);
-        setTimeout(() => setShowReward(null), 1000);
+      earnPhotons('like', authorId);
+      setShowReward(entryId);
+      setTimeout(() => setShowReward(null), 1000);
     }
     const entryRef = doc(db, 'entries', entryId);
     const likeRef = doc(db, 'entries', entryId, 'likes', user.uid);
@@ -123,7 +123,7 @@ export const Home = () => {
         else transaction.set(likeRef, { userId: user.uid });
       });
       setLikedEntries(prev => isLiked ? prev.filter(id => id !== entryId) : [...prev, entryId]);
-      setEntries(prev => prev.map(e => e.id === entryId ? {...e, likesCount: e.likesCount + (isLiked ? -1 : 1)} : e));
+      setEntries(prev => prev.map(e => e.id === entryId ? { ...e, likesCount: e.likesCount + (isLiked ? -1 : 1) } : e));
     } catch (e) { console.error(e); }
   };
 
@@ -157,7 +157,7 @@ export const Home = () => {
           <Link to="/public-feed" className="text-secondary font-semibold hover:underline">Ver todo o feed de gratidão →</Link>
         </div>
       </div>
-       <style>{`
+      <style>{`
         .reward-animation { position: absolute; bottom: 100%; left: 50%; transform: translateX(-50%); animation: floatUp 1s ease-out forwards; font-size: 1.2rem; font-weight: bold; color: #4ade80; }
         @keyframes floatUp { 0% { opacity: 1; transform: translate(-50%, 0); } 100% { opacity: 0; transform: translate(-50%, -50px); } }
     `}</style>

@@ -1,5 +1,5 @@
 
-import { motion, AnimatePresence } from 'framer-motion';
+import { motion, AnimatePresence, type Variants } from 'framer-motion';
 import { Link } from 'react-router-dom';
 import { Home, BookOpen, Target, Award, Info, X } from 'lucide-react';
 import { useAuth } from '../contexts/AuthContext';
@@ -10,7 +10,7 @@ interface SidebarProps {
   setIsOpen: (isOpen: boolean) => void;
 }
 
-const menuVariants = {
+const menuVariants: Variants = {
   hidden: {
     x: '-100%',
   },
@@ -20,7 +20,7 @@ const menuVariants = {
   },
 };
 
-const backdropVariants = {
+const backdropVariants: Variants = {
   hidden: {
     opacity: 0,
   },
@@ -71,8 +71,8 @@ export function Sidebar({ isOpen, setIsOpen }: SidebarProps) {
             {/* Perfil do Usuário (Mini) */}
             {user && (
               <div className="p-6 border-b border-slate-700">
-                  <p className="text-lg font-semibold text-text-primary">{user.displayName || 'Viajante'}</p>
-                  <p className="text-sm text-yellow-400">{`${photons} Fótons`}</p>
+                <p className="text-lg font-semibold text-text-primary">{user.displayName || 'Viajante'}</p>
+                <p className="text-sm text-yellow-400">{`${photons} Fótons`}</p>
               </div>
             )}
 

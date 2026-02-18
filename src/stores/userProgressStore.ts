@@ -20,6 +20,7 @@ interface LevelInfo {
   level: number;
   levelName: string;
   progress: number;
+  entropyStatus: string;
 }
 
 interface UserProgressState {
@@ -28,6 +29,7 @@ interface UserProgressState {
   level: number;
   levelName: string;
   progress: number;
+  entropyStatus: string;
   currentStreak: number;
   longestStreak: number;
   lastPostedDate: string | null;
@@ -42,14 +44,18 @@ const calculateLevel = (photons: number): LevelInfo => {
   const currentLevelInfo = levels.slice().reverse().find(l => photons >= l.minPhotons) || levels[0];
   const nextLevelInfo = levels.find(l => l.level === currentLevelInfo.level + 1);
 
+  let entropyStatus = 'Alta Entropia';
+  if (currentLevelInfo.level >= 3) entropyStatus = 'Coerência Quântica';
+  else if (currentLevelInfo.level === 2) entropyStatus = 'Estado Estacionário';
+
   if (nextLevelInfo) {
     const photonsInCurrentLevel = photons - currentLevelInfo.minPhotons;
     const photonsForNextLevel = nextLevelInfo.minPhotons - currentLevelInfo.minPhotons;
     const progress = (photonsInCurrentLevel / photonsForNextLevel) * 100;
-    return { level: currentLevelInfo.level, levelName: currentLevelInfo.name, progress: Math.min(progress, 100) };
+    return { level: currentLevelInfo.level, levelName: currentLevelInfo.name, progress: Math.min(progress, 100), entropyStatus };
   }
 
-  return { level: currentLevelInfo.level, levelName: currentLevelInfo.name, progress: 100 }; // Nível máximo
+  return { level: currentLevelInfo.level, levelName: currentLevelInfo.name, progress: 100, entropyStatus }; // Nível máximo
 };
 
 const getInitialState = () => ({
@@ -58,6 +64,7 @@ const getInitialState = () => ({
   level: 1,
   levelName: 'Observador Quântico',
   progress: 0,
+  entropyStatus: 'Alta Entropia',
   currentStreak: 0,
   longestStreak: 0,
   lastPostedDate: null,
@@ -81,13 +88,14 @@ export const useUserProgressStore = create<UserProgressState>((set, get) => ({
       const currentStreak = data.currentStreak || 0;
       const longestStreak = data.longestStreak || 0;
       const lastPostedDate = data.lastPostedDate || null;
-      const { level, levelName, progress } = calculateLevel(photons);
+      const { level, levelName, progress, entropyStatus } = calculateLevel(photons);
       set({
         userId: uid,
         photons,
         level,
         levelName,
         progress,
+        entropyStatus,
         currentStreak,
         longestStreak,
         lastPostedDate,
@@ -168,12 +176,13 @@ export const useUserProgressStore = create<UserProgressState>((set, get) => ({
         }, { merge: true });
 
         // Após a transação, atualiza o estado local
-        const { level, levelName, progress } = calculateLevel(newPhotons);
+        const { level, levelName, progress, entropyStatus } = calculateLevel(newPhotons);
         set({
           photons: newPhotons,
           level,
           levelName,
           progress,
+          entropyStatus,
           currentStreak: newStreak,
           longestStreak: newLongestStreak,
           lastPostedDate: newLastPostedDate

@@ -1,4 +1,5 @@
-import React, { useEffect, useState } from 'react';
+import { useEffect, useState } from 'react';
+// @ts-ignore
 import cloud from 'd3-cloud';
 
 // A interface para uma única entrada do diário, que agora corresponde à estrutura de GratitudeJournal
@@ -18,6 +19,7 @@ interface WordData extends cloud.Word {
     x?: number;
     y?: number;
     rotate?: number;
+    font?: string;
 }
 
 // Paleta de cores para a nuvem de palavras
@@ -62,7 +64,7 @@ export function ProbabilityCloud({ entries }: ProbabilityCloudProps) {
             .padding(5)
             .rotate(() => (~~(Math.random() * 6) - 3) * 30)
             .font("Impact")
-            .fontSize(d => d.size || 10)
+            .fontSize((d: WordData) => d.size || 10)
             .on("end", (layoutWords: WordData[]) => {
                 setWords(layoutWords);
                 setStatus('success');

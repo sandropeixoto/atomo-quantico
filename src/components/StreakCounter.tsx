@@ -1,4 +1,3 @@
-import React from 'react';
 import { useUserProgressStore } from '../stores/userProgressStore';
 import { Flame } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
