@@ -17,12 +17,12 @@ export function Header() {
   };
 
   return (
-    <header className="bg-background/80 backdrop-blur-sm sticky top-0 z-30">
+    <header className="bg-background/95 backdrop-blur-md border-b border-gray-800 sticky top-0 z-30">
       <nav className="container mx-auto px-4 sm:px-6 lg:px-8 py-4 flex items-center justify-between">
         {/* Lado Esquerdo: Logo */}
         <Link to="/" className="flex items-center space-x-3">
           <AtomoQuanticoLogo />
-          <span className="text-xl font-semibold text-text-primary hidden sm:inline">Átomo Quântico</span>
+          <span className="text-xl font-semibold text-text-primary">Átomo Quântico</span>
         </Link>
 
         {/* Centro: Status Quântico (apenas para usuários logados) */}

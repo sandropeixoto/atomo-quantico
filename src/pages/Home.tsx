@@ -128,7 +128,7 @@ export const Home = () => {
   };
 
   return (
-    <div className="max-w-3xl mx-auto py-12 px-4">
+    <div className="max-w-5xl mx-auto py-12 px-4">
       <JourneySummary />
       <div className="bg-background rounded-2xl shadow-lg p-8 mb-12">
         <h2 className="text-3xl font-bold text-text-primary mb-6">Gratidão em Destaque</h2>

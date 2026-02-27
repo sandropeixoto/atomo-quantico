@@ -51,7 +51,7 @@ const GratitudeJournal = () => {
         likesCount: 0,
         commentsCount: 0,
       });
-      
+
       earnPhotons('create_entry');
 
       setEntry('');
@@ -71,9 +71,9 @@ const GratitudeJournal = () => {
   }
 
   return (
-    <div className="max-w-3xl mx-auto py-12 px-4">
+    <div className="max-w-5xl mx-auto py-12 px-4">
       <h1 className="text-4xl font-bold text-center text-text-primary mb-12">Meu Diário de Gratidão</h1>
-      
+
       <div className="bg-background rounded-2xl shadow-lg p-8 mb-12">
         <form onSubmit={handleSubmit}>
           <h2 className="text-2xl font-semibold text-text-primary mb-4">Pelo que você é grato hoje?</h2>
@@ -84,7 +84,7 @@ const GratitudeJournal = () => {
             value={entry}
             onChange={(e: React.ChangeEvent<HTMLTextAreaElement>) => setEntry(e.target.value)}
           />
-          
+
           <div className="flex items-center mt-4">
             <input
               type="checkbox"
@@ -109,9 +109,9 @@ const GratitudeJournal = () => {
       </div>
 
       <div className="bg-background rounded-2xl shadow-lg p-8 mb-12">
-          <h2 className="text-3xl font-bold text-text-primary mb-6 text-center">Sua Nuvem de Gratidão</h2>
-          {/* A correção é aqui: passamos o estado 'entries' para o componente */}
-          <ProbabilityCloud entries={entries} />
+        <h2 className="text-3xl font-bold text-text-primary mb-6 text-center">Sua Nuvem de Gratidão</h2>
+        {/* A correção é aqui: passamos o estado 'entries' para o componente */}
+        <ProbabilityCloud entries={entries} />
       </div>
 
       <div>
