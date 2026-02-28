@@ -1,65 +1,39 @@
-# Átomo Quântico - Seu Santuário Pessoal de Gratidão
+# Átomo Quântico ⚛️ - Jornada de Gratidão
 
-O Átomo Quântico é uma aplicação web de código aberto, construída para ser um espaço seguro e acolhedor onde os usuários podem cultivar o hábito da gratidão. Através de um diário pessoal, é possível registrar pensamentos e momentos pelos quais se é grato, com a opção de compartilhar essas reflexões com a comunidade.
+O **Átomo Quântico** é um santuário digital minimalista e gamificado para o cultivo da gratidão. Inspirado nos princípios da mecânica quântica, o app transforma atos de gratidão em "Fótons de Energia", permitindo que os usuários evoluam sua consciência enquanto compartilham positividade com a comunidade.
 
-## Funcionalidades Implementadas
+![Status: Em Produção](https://img.shields.io/badge/Status-Produ%C3%A7%C3%A3o-success)
+![Versão: 2.0](https://img.shields.io/badge/Vers%C3%A3o-2.0-blue)
+![PWA Ready](https://img.shields.io/badge/PWA-Pronto-orange)
 
-*   **✍️ Diário de Gratidão Pessoal:** Escreva e guarde suas anotações de gratidão em um espaço privado e seguro.
-*   **🌐 Feed Público Opcional:** Escolha tornar suas anotações públicas e compartilhá-las com a comunidade no feed principal. Por padrão, a opção de compartilhar já vem marcada para encorajar a interação.
-*   **❤️ Interação da Comunidade:** Curta e comente as reflexões de gratidão compartilhadas por outros usuários.
-*   **🔐 Autenticação Segura:** Login rápido e seguro utilizando a autenticação do Google.
-*   **🏠 Feed Principal:** A página inicial apresenta as 10 postagens públicas mais recentes para todos os visitantes.
-*   **📖 Feed Completo:** Uma página dedicada (`/public-feed`) exibe todas as postagens públicas já compartilhadas.
+## 🚀 Funcionalidades Principais
 
-## Tecnologias Utilizadas
+- **Feed Estilo Moderno (X/Twitter)**: Interface limpa, rápida e focada no conteúdo, com interações fluidas.
+- **Criação de Posts Simplificada**: Campo de entrada intuitivo para registrar gratidões em segundos.
+- **Gamificação Avançada**:
+  - **Fótons**: Ganhe pontos ao postar (+10), curtir (+1) ou receber interações.
+  - **Níveis de Consciência**: 7 níveis de evolução, de "Observador" a "Entidade de Luz".
+  - **Entropia e Streaks**: Sistema que valoriza a consistência diária.
+- **Comunidade Quântica**: Feed público para inspirar e ser inspirado por outros viajantes.
+- **PWA Imersivo**: Experiência Edge-to-Edge otimizada para smartphones.
 
-*   **Frontend:**
-    *   **React:** Biblioteca para construção da interface de usuário.
-    *   **TypeScript:** Superset de JavaScript que adiciona tipagem estática.
-    *   **Vite:** Ferramenta de build para um desenvolvimento frontend mais rápido.
-    *   **Tailwind CSS:** Framework de CSS utility-first para estilização.
-*   **Backend & Infraestrutura:**
-    *   **Firebase:** Plataforma do Google utilizada para:
-        *   **Firestore:** Banco de dados NoSQL para armazenar as anotações, curtidas e comentários.
-        *   **Authentication:** Gerenciamento de autenticação de usuários.
-        *   **Hosting:** Hospedagem e deploy da aplicação.
+## 🛠️ Tecnologias
 
-## Como Executar o Projeto Localmente
+- **Frontend**: React 19 + TypeScript + Vite.
+- **Estilização**: Tailwind CSS 4 (Design Moderno & Dark Mode).
+- **Animações**: Framer Motion para micro-interações e feedbacks visuais.
+- **Backend**: Firebase (Firestore & Auth).
+- **Estado**: Zustand para gerenciamento global de progresso.
 
-1.  **Clone o repositório:**
-    ```bash
-    git clone <URL_DO_REPOSITORIO>
-    ```
-2.  **Instale as dependências:**
-    ```bash
-    npm install
-    ```
-3.  **Configure o Firebase:**
-    *   Crie um projeto no [console do Firebase](https://console.firebase.google.com/).
-    *   Crie um arquivo `.env.local` na raiz do projeto com as credenciais do seu projeto Firebase. Você pode encontrá-las nas configurações do seu projeto no console do Firebase.
-    ```
-    VITE_FIREBASE_API_KEY=sua_api_key
-    VITE_FIREBASE_AUTH_DOMAIN=seu_auth_domain
-    VITE_FIREBASE_PROJECT_ID=seu_project_id
-    VITE_FIREBASE_STORAGE_BUCKET=seu_storage_bucket
-    VITE_FIREBASE_MESSAGING_SENDER_ID=seu_messaging_sender_id
-    VITE_FIREBASE_APP_ID=seu_app_id
-    ```
-4.  **Execute o servidor de desenvolvimento:**
-    ```bash
-    npm run dev
-    ```
+## 📱 Experiência Mobile
 
-## Deploy
+O design foi concebido para aproveitar 100% das telas modernas, utilizando layouts **Edge-to-Edge** e áreas de toque otimizadas para uso com apenas uma mão.
 
-O deploy da aplicação é feito através do Firebase Hosting. Para publicar as alterações, utilize o seguinte comando:
+## 📖 Documentação
 
-```bash
-firebase deploy
-```
+Para detalhes técnicos sobre a arquitetura e padrões de design, consulte:
+- [MASTER.md](./MASTER.md) - Padrões de UI e Componentes.
+- [DOCUMENTATION.md](./DOCUMENTATION.md) - Guia completo do projeto.
 
-Para publicar apenas as regras e índices do Firestore:
-
-```bash
-firebase deploy --only firestore
-```
+---
+*Desenvolvido com foco na evolução da consciência e design minimalista.*
