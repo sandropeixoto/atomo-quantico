@@ -1,0 +1,9 @@
+import type { CapacitorConfig } from '@capacitor/cli';
+
+const config: CapacitorConfig = {
+  appId: 'com.nano.atomoquantico',
+  appName: 'Átomo Quântico',
+  webDir: 'dist'
+};
+
+export default config;

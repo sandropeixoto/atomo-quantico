@@ -1,0 +1,39 @@
+{
+  "project_info": {
+    "project_number": "434005661",
+    "project_id": "atomo-quantico-2f81f",
+    "storage_bucket": "atomo-quantico-2f81f.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:434005661:android:0e6c108bcc9beaf8f49674",
+        "android_client_info": {
+          "package_name": "com.nano.atomoquantico"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "434005661-aumq9bmpm2qb9p5s5pcq0dcvasbh40h0.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDtQiZwozONJIPybJI8XQUJUK1QJDZ8enQ"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "434005661-aumq9bmpm2qb9p5s5pcq0dcvasbh40h0.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
