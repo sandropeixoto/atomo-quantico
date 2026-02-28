@@ -1,10 +1,11 @@
 import { useState, useEffect } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 import { collection, getDocs, query, where, orderBy, doc, runTransaction, collectionGroup } from 'firebase/firestore';
 import { db } from '../services/firebase';
 import { useAuth } from '../contexts/AuthContext';
-import { ThumbsUp, MessageSquare } from 'lucide-react';
+import { ArrowLeft } from 'lucide-react';
 import { useUserProgressStore } from '../stores/userProgressStore';
+import { GratitudeCard } from './Home';
 
 interface PublicEntry {
   id: string;
@@ -19,7 +20,6 @@ interface PublicEntry {
 const PublicFeed = () => {
   const [entries, setEntries] = useState<PublicEntry[]>([]);
   const [likedEntries, setLikedEntries] = useState<string[]>([]);
-  const [showReward, setShowReward] = useState<string | null>(null);
   const { user } = useAuth();
   const navigate = useNavigate();
   const { earnPhotons } = useUserProgressStore();
@@ -59,11 +59,15 @@ const PublicFeed = () => {
   const handleLike = async (entryId: string, authorId: string) => {
     if (!user) { navigate('/login'); return; }
     const isLiked = likedEntries.includes(entryId);
+    
+    // UI Otimista
+    setLikedEntries(prev => isLiked ? prev.filter(id => id !== entryId) : [...prev, entryId]);
+    setEntries(prev => prev.map(e => e.id === entryId ? { ...e, likesCount: e.likesCount + (isLiked ? -1 : 1) } : e));
+
     if (!isLiked) {
       earnPhotons('like', authorId);
-      setShowReward(entryId);
-      setTimeout(() => setShowReward(null), 1000);
     }
+    
     const entryRef = doc(db, 'entries', entryId);
     const likeRef = doc(db, 'entries', entryId, 'likes', user.uid);
     try {
@@ -75,39 +79,35 @@ const PublicFeed = () => {
         if (isLiked) transaction.delete(likeRef);
         else transaction.set(likeRef, { userId: user.uid });
       });
-      setLikedEntries(prev => isLiked ? prev.filter(id => id !== entryId) : [...prev, entryId]);
-      setEntries(prev => prev.map(e => e.id === entryId ? { ...e, likesCount: e.likesCount + (isLiked ? -1 : 1) } : e));
-    } catch (e) { console.error(e); }
+    } catch (e) { 
+      console.error(e);
+      fetchPublicEntries(); 
+      fetchUserLikes();
+    }
   };
 
   return (
-    <div className="max-w-7xl mx-auto py-12 px-4">
-      <h1 className="text-4xl font-bold text-center text-text-primary mb-12">Feed de Gratidão Público</h1>
-      <div className="space-y-8">
+    <div className="max-w-3xl mx-auto py-4 sm:py-8 px-2 sm:px-4">
+      <div className="flex items-center space-x-4 mb-8">
+        <button onClick={() => navigate(-1)} className="p-2 hover:bg-white/10 rounded-full transition-colors">
+          <ArrowLeft size={24} />
+        </button>
+        <div>
+          <h1 className="text-2xl font-bold text-text-primary">Feed Quântico</h1>
+          <p className="text-text-secondary text-sm">Gratidão compartilhada pela comunidade</p>
+        </div>
+      </div>
+
+      <div className="space-y-4">
         {entries.map(entry => (
-          <div key={entry.id} className="bg-background rounded-2xl shadow-lg p-6 relative">
-            <p className="text-text-secondary leading-relaxed mb-4">{entry.text}</p>
-            <div className="flex items-center justify-between text-sm text-gray-400">
-              <p>Postado por <Link to={`/profile/${entry.authorId}`} className="hover:underline">{entry.authorName}</Link></p>
-              <div className="flex items-center space-x-4">
-                <button onClick={() => handleLike(entry.id, entry.authorId)} className={`flex items-center space-x-1 relative ${likedEntries.includes(entry.id) ? 'text-secondary' : ''}`}>
-                  <ThumbsUp size={18} />
-                  <span>{entry.likesCount || 0}</span>
-                  {showReward === entry.id && <div className="reward-animation">+1 ⚛️</div>}
-                </button>
-                <Link to={`/post/${entry.id}`} className="flex items-center space-x-1">
-                  <MessageSquare size={18} />
-                  <span>{entry.commentsCount || 0}</span>
-                </Link>
-              </div>
-            </div>
-          </div>
+          <GratitudeCard 
+            key={entry.id} 
+            entry={entry} 
+            isLiked={likedEntries.includes(entry.id)} 
+            onLike={handleLike} 
+          />
         ))}
       </div>
-      <style>{`
-        .reward-animation { position: absolute; bottom: 100%; left: 50%; transform: translateX(-50%); animation: floatUp 1s ease-out forwards; font-size: 1.2rem; font-weight: bold; color: #4ade80; }
-        @keyframes floatUp { 0% { opacity: 1; transform: translate(-50%, 0); } 100% { opacity: 0; transform: translate(-50%, -50px); } }
-      `}</style>
     </div>
   );
 };
