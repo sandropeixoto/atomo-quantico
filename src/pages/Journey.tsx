@@ -55,7 +55,7 @@ export function Journey() {
   }
 
   return (
-    <div className="max-w-4xl mx-auto py-12 px-4">
+    <div className="max-w-7xl mx-auto py-12 px-4">
       <h1 className="text-4xl font-bold text-center text-text-primary mb-12">Sua Jornada Quântica</h1>
 
       {/* Métricas do Usuário */}

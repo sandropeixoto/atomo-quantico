@@ -156,7 +156,7 @@ const PostPage = () => {
   }
 
   return (
-    <div className="max-w-3xl mx-auto py-12 px-4">
+    <div className="max-w-7xl mx-auto py-12 px-4">
       <div className="bg-background rounded-2xl shadow-lg p-8 mb-8">
         <p className="text-sm text-gray-400 mb-2">Postado por {post.authorName} em {new Date(post.timestamp.seconds * 1000).toLocaleDateString('pt-BR')}</p>
         <p className="text-text-secondary text-lg leading-relaxed">{post.text}</p>

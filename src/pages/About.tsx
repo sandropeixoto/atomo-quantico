@@ -1,6 +1,6 @@
 export function About() {
   return (
-    <div className="max-w-4xl mx-auto text-text-primary">
+    <div className="max-w-7xl mx-auto text-text-primary px-4 py-12">
       <h1 className="text-4xl font-bold text-center mb-12">Sobre o Átomo Quântico</h1>
 
       {/* Seção Sobre */}

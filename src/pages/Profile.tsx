@@ -60,7 +60,7 @@ const Profile = () => {
   }
 
   return (
-    <div className="max-w-xl mx-auto py-12 px-4">
+    <div className="max-w-4xl mx-auto py-12 px-4">
       <h1 className="text-3xl font-bold text-text-primary mb-6">Meu Perfil</h1>
       <form onSubmit={handleSave} className="space-y-6">
         <div>

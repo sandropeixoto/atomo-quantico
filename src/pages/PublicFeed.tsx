@@ -81,7 +81,7 @@ const PublicFeed = () => {
   };
 
   return (
-    <div className="max-w-5xl mx-auto py-12 px-4">
+    <div className="max-w-7xl mx-auto py-12 px-4">
       <h1 className="text-4xl font-bold text-center text-text-primary mb-12">Feed de Gratidão Público</h1>
       <div className="space-y-8">
         {entries.map(entry => (

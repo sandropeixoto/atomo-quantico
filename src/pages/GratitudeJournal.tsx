@@ -71,7 +71,7 @@ const GratitudeJournal = () => {
   }
 
   return (
-    <div className="max-w-5xl mx-auto py-12 px-4">
+    <div className="max-w-7xl mx-auto py-12 px-4">
       <h1 className="text-4xl font-bold text-center text-text-primary mb-12">Meu Diário de Gratidão</h1>
 
       <div className="bg-background rounded-2xl shadow-lg p-8 mb-12">

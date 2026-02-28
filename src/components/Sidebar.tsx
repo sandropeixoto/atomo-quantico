@@ -51,14 +51,14 @@ export function Sidebar({ isOpen, setIsOpen }: SidebarProps) {
             animate="visible"
             exit="hidden"
             onClick={() => setIsOpen(false)}
-            className="fixed inset-0 bg-slate-900/50 backdrop-blur-sm z-40"
+            className="fixed inset-0 bg-black/70 backdrop-blur-sm z-40"
           />
           <motion.div
             variants={menuVariants}
             initial="hidden"
             animate="visible"
             exit="hidden"
-            className="fixed top-0 left-0 bottom-0 w-72 bg-slate-900 border-r border-blue-500/30 shadow-2xl z-50 flex flex-col"
+            className="fixed top-0 left-0 bottom-0 w-72 bg-[#0D0B1A] border-r border-secondary/30 shadow-2xl z-50 flex flex-col"
           >
             {/* Cabeçalho do Menu */}
             <div className="p-6 flex items-center justify-between border-b border-slate-700">

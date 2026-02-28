@@ -5,6 +5,7 @@ import { db } from '../services/firebase';
 import { useAuth } from '../contexts/AuthContext';
 import { ThumbsUp, MessageSquare, Award } from 'lucide-react';
 import { useUserProgressStore } from '../stores/userProgressStore';
+import { motion, AnimatePresence } from 'framer-motion';
 
 interface PublicEntry {
   id: string;
@@ -32,33 +33,33 @@ const JourneySummary = () => {
   }
 
   return (
-    <div className="bg-primary rounded-2xl shadow-lg p-8 mb-12">
-      <h2 className="text-3xl font-bold text-text-primary mb-2">Sua Jornada Quântica</h2>
-      <p className="text-text-secondary mb-6">Este é um resumo do seu progresso. Continue interagindo para evoluir!</p>
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
-        <div className="bg-background rounded-xl p-6 flex flex-col items-center justify-center text-center">
-          <span className="text-5xl font-bold text-secondary">{photons}</span>
-          <span className="text-text-secondary mt-1">Fótons de Gratidão ⚛️</span>
+    <div className="bg-primary rounded-2xl shadow-lg p-5 sm:p-8 mb-8 sm:mb-12">
+      <h2 className="text-2xl sm:text-3xl font-bold text-text-primary mb-2">Sua Jornada Quântica</h2>
+      <p className="text-text-secondary text-sm sm:text-base mb-6">Este é um resumo do seu progresso. Continue interagindo para evoluir!</p>
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-6 mb-6">
+        <div className="bg-background rounded-xl p-4 sm:p-6 flex flex-col items-center justify-center text-center">
+          <span className="text-4xl sm:text-5xl font-bold text-secondary">{photons}</span>
+          <span className="text-xs sm:text-sm text-text-secondary mt-1 uppercase tracking-wider">Fótons de Gratidão ⚛️</span>
         </div>
-        <div className="bg-background rounded-xl p-6 flex flex-col items-center justify-center text-center">
+        <div className="bg-background rounded-xl p-4 sm:p-6 flex flex-col items-center justify-center text-center">
           <div className="flex items-center gap-2">
-            <Award className="text-accent" size={32} />
-            <span className="text-3xl font-bold text-text-primary">{levelName}</span>
+            <Award className="text-accent" size={28} />
+            <span className="text-2xl sm:text-3xl font-bold text-text-primary">{levelName}</span>
           </div>
-          <span className="text-text-secondary mt-1">Nível {level}</span>
+          <span className="text-xs sm:text-sm text-text-secondary mt-1 uppercase tracking-wider">Nível {level}</span>
         </div>
       </div>
       <div>
         <div className="flex justify-between items-center mb-1">
-          <span className="text-sm font-medium text-text-secondary">Progresso para o próximo nível</span>
-          <span className="text-sm font-medium text-text-secondary">{Math.floor(progress)}%</span>
+          <span className="text-xs font-medium text-text-secondary">Progresso</span>
+          <span className="text-xs font-medium text-text-secondary">{Math.floor(progress)}%</span>
         </div>
-        <div className="w-full bg-gray-700 rounded-full h-2.5">
-          <div className="bg-secondary h-2.5 rounded-full" style={{ width: `${progress}%` }}></div>
+        <div className="w-full bg-gray-700 rounded-full h-2">
+          <div className="bg-secondary h-2 rounded-full" style={{ width: `${progress}%` }}></div>
         </div>
       </div>
-      <div className="text-center mt-8">
-        <Link to="/journey" className="bg-secondary text-text-primary font-semibold py-3 px-8 rounded-full hover:opacity-90 transition-opacity">Ver Minha Jornada Completa</Link>
+      <div className="text-center mt-6 sm:mt-8">
+        <Link to="/journey" className="inline-block bg-secondary text-text-primary font-semibold py-3 px-6 sm:px-8 rounded-full hover:opacity-90 transition-opacity text-sm sm:text-base">Ver Minha Jornada Completa</Link>
       </div>
     </div>
   );
@@ -106,11 +107,17 @@ export const Home = () => {
   const handleLike = async (entryId: string, authorId: string) => {
     if (!user) { navigate('/login'); return; }
     const isLiked = likedEntries.includes(entryId);
+    
+    // UI Otimista para likes
+    setLikedEntries(prev => isLiked ? prev.filter(id => id !== entryId) : [...prev, entryId]);
+    setEntries(prev => prev.map(e => e.id === entryId ? { ...e, likesCount: e.likesCount + (isLiked ? -1 : 1) } : e));
+
     if (!isLiked) {
       earnPhotons('like', authorId);
       setShowReward(entryId);
       setTimeout(() => setShowReward(null), 1000);
     }
+    
     const entryRef = doc(db, 'entries', entryId);
     const likeRef = doc(db, 'entries', entryId, 'likes', user.uid);
     try {
@@ -122,31 +129,49 @@ export const Home = () => {
         if (isLiked) transaction.delete(likeRef);
         else transaction.set(likeRef, { userId: user.uid });
       });
-      setLikedEntries(prev => isLiked ? prev.filter(id => id !== entryId) : [...prev, entryId]);
-      setEntries(prev => prev.map(e => e.id === entryId ? { ...e, likesCount: e.likesCount + (isLiked ? -1 : 1) } : e));
-    } catch (e) { console.error(e); }
+    } catch (e) { 
+      console.error(e);
+      // Reverter UI otimista em caso de erro
+      fetchPublicEntries(); 
+      fetchUserLikes();
+    }
   };
 
   return (
-    <div className="max-w-5xl mx-auto py-12 px-4">
+    <div className="max-w-7xl mx-auto py-6 sm:py-12 px-1 sm:px-4">
       <JourneySummary />
-      <div className="bg-background rounded-2xl shadow-lg p-8 mb-12">
-        <h2 className="text-3xl font-bold text-text-primary mb-6">Gratidão em Destaque</h2>
-        <div className="space-y-8">
+      <div className="bg-background rounded-2xl shadow-lg p-5 sm:p-8 mb-12">
+        <h2 className="text-2xl sm:text-3xl font-bold text-text-primary mb-6">Gratidão em Destaque</h2>
+        <div className="space-y-6 sm:space-y-8">
           {entries.map(entry => (
-            <div key={entry.id} className="bg-primary rounded-2xl shadow-lg p-6 relative">
-              <p className="text-text-secondary leading-relaxed mb-4">{entry.text}</p>
-              <div className="flex items-center justify-between text-sm text-gray-400">
-                <p>Postado por <Link to={`/profile/${entry.authorId}`} className="hover:underline">{entry.authorName}</Link></p>
-                <div className="flex items-center space-x-4">
-                  <button onClick={() => handleLike(entry.id, entry.authorId)} className={`flex items-center space-x-1 relative ${likedEntries.includes(entry.id) ? 'text-secondary' : ''}`}>
+            <div key={entry.id} className="bg-primary rounded-2xl shadow-lg p-5 sm:p-6 relative">
+              <p className="text-text-secondary text-sm sm:text-base leading-relaxed mb-4">{entry.text}</p>
+              <div className="flex items-center justify-between text-xs sm:text-sm text-gray-400">
+                <p>Por <Link to={`/profile/${entry.authorId}`} className="hover:underline font-medium text-text-secondary">{entry.authorName}</Link></p>
+                <div className="flex items-center space-x-3 sm:space-x-4">
+                  <motion.button 
+                    whileTap={{ scale: 0.8 }}
+                    onClick={() => handleLike(entry.id, entry.authorId)} 
+                    className={`flex items-center space-x-1.5 relative ${likedEntries.includes(entry.id) ? 'text-secondary' : ''} p-2 -m-2`}
+                  >
                     <ThumbsUp size={18} />
-                    <span>{entry.likesCount || 0}</span>
-                    {showReward === entry.id && <div className="reward-animation">+1 ⚛️</div>}
-                  </button>
-                  <Link to={`/post/${entry.id}`} className="flex items-center space-x-1">
+                    <span className="font-bold">{entry.likesCount || 0}</span>
+                    <AnimatePresence>
+                      {showReward === entry.id && (
+                        <motion.div 
+                          initial={{ opacity: 1, y: 0 }}
+                          animate={{ opacity: 0, y: -40 }}
+                          exit={{ opacity: 0 }}
+                          className="absolute bottom-full left-1/2 -translate-x-1/2 text-accent font-bold whitespace-nowrap pointer-events-none"
+                        >
+                          +1 Fóton ⚛️
+                        </motion.div>
+                      )}
+                    </AnimatePresence>
+                  </motion.button>
+                  <Link to={`/post/${entry.id}`} className="flex items-center space-x-1.5 p-2 -m-2">
                     <MessageSquare size={18} />
-                    <span>{entry.commentsCount || 0}</span>
+                    <span className="font-bold">{entry.commentsCount || 0}</span>
                   </Link>
                 </div>
               </div>
@@ -157,10 +182,6 @@ export const Home = () => {
           <Link to="/public-feed" className="text-secondary font-semibold hover:underline">Ver todo o feed de gratidão →</Link>
         </div>
       </div>
-      <style>{`
-        .reward-animation { position: absolute; bottom: 100%; left: 50%; transform: translateX(-50%); animation: floatUp 1s ease-out forwards; font-size: 1.2rem; font-weight: bold; color: #4ade80; }
-        @keyframes floatUp { 0% { opacity: 1; transform: translate(-50%, 0); } 100% { opacity: 0; transform: translate(-50%, -50px); } }
-    `}</style>
     </div>
   );
 };

@@ -2,17 +2,29 @@ import { Mail, Phone } from 'lucide-react';
 
 export function Contact() {
   return (
-    <div>
-      <h1 className="text-3xl font-bold text-quantum-blue mb-4">Entre em Contato</h1>
-      <p className="text-gray-700 mb-6">Adoraríamos ouvir de você! Entre em contato conosco através dos canais abaixo.</p>
-      <div className="space-y-4">
-        <div className="flex items-center space-x-3">
-          <Mail className="text-quantum-violet" />
-          <a href="mailto:contato@quantum.com" className="text-gray-700 hover:text-quantum-blue">contato@quantum.com</a>
+    <div className="max-w-7xl mx-auto py-12 px-4 text-text-primary">
+      <h1 className="text-4xl font-bold mb-8">Entre em Contato</h1>
+      <p className="text-text-secondary text-lg mb-8 leading-relaxed">
+        Adoraríamos ouvir de você! Seja para tirar dúvidas, dar sugestões ou apenas compartilhar sua jornada de gratidão conosco.
+      </p>
+      <div className="bg-primary p-8 rounded-2xl shadow-lg space-y-6">
+        <div className="flex items-center space-x-4">
+          <div className="bg-secondary/20 p-3 rounded-full">
+            <Mail className="text-secondary" size={24} />
+          </div>
+          <div>
+            <p className="text-sm text-text-secondary">E-mail</p>
+            <a href="mailto:contato@atomoquantico.com" className="text-lg hover:text-secondary transition-colors">contato@atomoquantico.com</a>
+          </div>
         </div>
-        <div className="flex items-center space-x-3">
-          <Phone className="text-quantum-violet" />
-          <span className="text-gray-700">+55 (11) 99999-9999</span>
+        <div className="flex items-center space-x-4">
+          <div className="bg-accent/20 p-3 rounded-full">
+            <Phone className="text-accent" size={24} />
+          </div>
+          <div>
+            <p className="text-sm text-text-secondary">Telefone / WhatsApp</p>
+            <span className="text-lg">+55 (11) 99999-9999</span>
+          </div>
         </div>
       </div>
     </div>

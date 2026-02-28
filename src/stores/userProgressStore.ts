@@ -5,14 +5,17 @@ import { db } from '../services/firebase';
 // --- CONFIGURAÇÕES DE GAMEFICAÇÃO ---
 const POINTS_PER_LIKE = 1;
 const POINTS_PER_COMMENT = 3;
-const POINTS_PER_ENTRY = 5; // Recompensa por criar uma nova entrada de gratidão
+const POINTS_PER_ENTRY = 10; // Aumentado para valorizar o hábito
+const POINTS_PER_RECEIVED_LIKE = 2; // Novo: Recompensa por inspirar outros
 
 const levels = [
   { level: 1, name: 'Observador Quântico', minPhotons: 0 },
-  { level: 2, name: 'Partícula Emergente', minPhotons: 20 },
-  { level: 3, name: 'Viajante Cósmico', minPhotons: 50 },
-  { level: 4, name: 'Explorador Galáctico', minPhotons: 100 },
-  { level: 5, name: 'Mestre do Universo', minPhotons: 250 },
+  { level: 2, name: 'Partícula Emergente', minPhotons: 30 },
+  { level: 3, name: 'Núcleo Estável', minPhotons: 80 },
+  { level: 4, name: 'Viajante Cósmico', minPhotons: 200 },
+  { level: 5, name: 'Explorador Galáctico', minPhotons: 500 },
+  { level: 6, name: 'Mestre da Coerência', minPhotons: 1000 },
+  { level: 7, name: 'Entidade de Luz', minPhotons: 2500 },
 ];
 
 // --- TIPOS E INTERFACES ---
@@ -118,8 +121,8 @@ export const useUserProgressStore = create<UserProgressState>((set, get) => ({
   // 2. Adiciona fótons, SALVA no Firestore e atualiza o estado
   earnPhotons: async (action, postAuthorId) => {
     const uid = get().userId;
-    if (!uid) return; // Não faz nada se não houver usuário logado
-    if (action !== 'create_entry' && uid === postAuthorId) return; // Não ganha pontos ao interagir com os próprios posts
+    if (!uid) return;
+    if (action !== 'create_entry' && uid === postAuthorId) return;
 
     let points = 0;
     if (action === 'like') points = POINTS_PER_LIKE;
@@ -129,42 +132,34 @@ export const useUserProgressStore = create<UserProgressState>((set, get) => ({
     if (points === 0) return;
 
     const userRef = doc(db, 'users', uid);
+    const authorRef = postAuthorId ? doc(db, 'users', postAuthorId) : null;
+
     try {
       await runTransaction(db, async (transaction) => {
+        // 1. Crédito para quem realizou a ação
         const userDoc = await transaction.get(userRef);
-        const userData = userDoc.exists() ? userDoc.data() : {};
-        const currentPhotons = userData.photons || 0;
+        const currentPhotons = userDoc.exists() ? (userDoc.data().photons || 0) : 0;
         const newPhotons = currentPhotons + points;
 
-        // Lógica de Streak (Apenas para criação de entradas)
-        let newStreak = userData.currentStreak || 0;
-        let newLongestStreak = userData.longestStreak || 0;
-        let newLastPostedDate = userData.lastPostedDate || null;
+        // Lógica de Streak (mantida)
+        let newStreak = userDoc.exists() ? (userDoc.data().currentStreak || 0) : 0;
+        let newLongestStreak = userDoc.exists() ? (userDoc.data().longestStreak || 0) : 0;
+        let newLastPostedDate = userDoc.exists() ? (userDoc.data().lastPostedDate || null) : null;
 
         if (action === 'create_entry') {
           const today = new Date().toISOString().split('T')[0];
-          const lastPosted = userData.lastPostedDate;
-
+          const lastPosted = newLastPostedDate;
           if (lastPosted !== today) {
             if (lastPosted) {
               const lastDate = new Date(lastPosted);
               const currentDate = new Date(today);
-              const diffTime = Math.abs(currentDate.getTime() - lastDate.getTime());
-              const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
-
-              if (diffDays === 1) {
-                newStreak += 1;
-              } else {
-                newStreak = 1;
-              }
+              const diffDays = Math.ceil(Math.abs(currentDate.getTime() - lastDate.getTime()) / (1000 * 60 * 60 * 24));
+              newStreak = diffDays === 1 ? newStreak + 1 : 1;
             } else {
               newStreak = 1;
             }
             newLastPostedDate = today;
-
-            if (newStreak > newLongestStreak) {
-              newLongestStreak = newStreak;
-            }
+            if (newStreak > newLongestStreak) newLongestStreak = newStreak;
           }
         }
 
@@ -175,7 +170,17 @@ export const useUserProgressStore = create<UserProgressState>((set, get) => ({
           lastPostedDate: newLastPostedDate
         }, { merge: true });
 
-        // Após a transação, atualiza o estado local
+        // 2. [NOVO] Crédito para o autor do post ao receber like/comentário
+        if (authorRef && (action === 'like' || action === 'comment')) {
+          const authorDoc = await transaction.get(authorRef);
+          if (authorDoc.exists()) {
+            const authorPhotons = authorDoc.data().photons || 0;
+            const reward = action === 'like' ? POINTS_PER_RECEIVED_LIKE : POINTS_PER_COMMENT; // Autor ganha bem se comentarem
+            transaction.update(authorRef, { photons: authorPhotons + reward });
+          }
+        }
+
+        // Atualiza estado local
         const { level, levelName, progress, entropyStatus } = calculateLevel(newPhotons);
         set({
           photons: newPhotons,
