@@ -22,3 +22,5 @@ dist-ssr
 *.njsproj
 *.sln
 *.sw?
+android/key.properties
+android/app/atomo-quantico.keystore

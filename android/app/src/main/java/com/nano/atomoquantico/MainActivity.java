@@ -1,4 +1,4 @@
-package com.atomoquantico.app;
+package com.nano.atomoquantico;
 
 import com.getcapacitor.BridgeActivity;
 
