@@ -1,11 +1,12 @@
 
 import React, { useState, useEffect } from 'react';
-import { collection, addDoc, getDocs, query, where, orderBy } from 'firebase/firestore';
+import { collection, addDoc, getDocs, query, where, orderBy, deleteDoc, doc } from 'firebase/firestore';
 import { db } from '../services/firebase';
 import { useAuth } from '../contexts/AuthContext';
 import { useUserProgressStore } from '../stores/userProgressStore';
 import { ProbabilityCloud } from '../components/ProbabilityCloud';
-import { PenSquare } from 'lucide-react';
+import { PenSquare, Trash2 } from 'lucide-react';
+import { ConfirmationModal } from '../components/ConfirmationModal';
 
 interface JournalEntry {
   id: string;
@@ -18,6 +19,8 @@ const GratitudeJournal = () => {
   const [entry, setEntry] = useState('');
   const [entries, setEntries] = useState<JournalEntry[]>([]);
   const [isPublic, setIsPublic] = useState(true);
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [entryToDelete, setEntryToDelete] = useState<string | null>(null);
   const { user } = useAuth();
   const { earnPhotons } = useUserProgressStore();
 
@@ -62,6 +65,23 @@ const GratitudeJournal = () => {
     }
   };
 
+  const handleDeleteEntry = async () => {
+    if (!entryToDelete) return;
+
+    try {
+      await deleteDoc(doc(db, 'entries', entryToDelete));
+      setEntries(entries.filter(e => e.id !== entryToDelete));
+      setEntryToDelete(null);
+    } catch (e) {
+      console.error('Error deleting document: ', e);
+    }
+  };
+
+  const openDeleteModal = (id: string) => {
+    setEntryToDelete(id);
+    setIsModalOpen(true);
+  };
+
   if (!user) {
     return (
       <div className="text-center py-20">
@@ -72,6 +92,17 @@ const GratitudeJournal = () => {
 
   return (
     <div className="max-w-7xl mx-auto py-12 px-4">
+      {/* Modal de Confirmação */}
+      <ConfirmationModal
+        isOpen={isModalOpen}
+        onClose={() => setIsModalOpen(false)}
+        onConfirm={handleDeleteEntry}
+        title="Excluir Memória"
+        message="Tem certeza que deseja excluir esta memória de gratidão? Esta ação não pode ser desfeita e os fótons conquistados não serão removidos."
+        confirmText="Excluir"
+        cancelText="Manter"
+      />
+
       <h1 className="text-4xl font-bold text-center text-text-primary mb-12">Meu Diário de Gratidão</h1>
 
       <div className="bg-background rounded-2xl shadow-lg p-8 mb-12">
@@ -119,8 +150,23 @@ const GratitudeJournal = () => {
         <div className="space-y-6">
           {entries.length > 0 ? (
             entries.map((entryItem) => (
-              <div key={entryItem.id} className="bg-background rounded-xl shadow-md p-6 border-l-4 border-accent">
-                {entryItem.isPublic && <span className="text-xs font-semibold text-secondary bg-secondary/10 py-1 px-2 rounded-full mb-2 inline-block">Público</span>}
+              <div key={entryItem.id} className="bg-background rounded-xl shadow-md p-6 border-l-4 border-accent relative group">
+                <div className="flex justify-between items-start mb-2">
+                  <div className="flex flex-wrap gap-2">
+                    {entryItem.isPublic && (
+                      <span className="text-xs font-semibold text-secondary bg-secondary/10 py-1 px-2 rounded-full inline-block">
+                        Público
+                      </span>
+                    )}
+                  </div>
+                  <button
+                    onClick={() => openDeleteModal(entryItem.id)}
+                    className="text-gray-600 hover:text-red-500 transition-colors p-2 rounded-lg hover:bg-red-500/10"
+                    title="Excluir memória"
+                  >
+                    <Trash2 size={18} />
+                  </button>
+                </div>
                 <p className="text-text-secondary leading-relaxed mb-3">{entryItem.text}</p>
                 <p className="text-sm text-gray-400 font-light">
                   {new Date(entryItem.timestamp.seconds * 1000).toLocaleDateString('pt-BR', { year: 'numeric', month: 'long', day: 'numeric' })}
