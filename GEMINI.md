@@ -87,3 +87,26 @@
 - Minimum touch target: `44x44px`.
 - Interactive elements must use `whileTap={{ scale: 0.8 }}` or similar feedback via Framer Motion.
 - Transparent Sticky Headers for contextual navigation.
+- **Safe Area Insets**: Must always use `env(safe-area-inset-*)` for fixed elements (Header, Footer, Sidebar) to avoid system UI overlap.
+
+## 🎨 Visual Identity & Animations
+
+### ⚛️ Quantum Logo (The Core)
+- **Format**: Native SVG integrated with Framer Motion.
+- **Visuals**: A central nucleus with 3 elliptical orbits.
+- **Animation**: 
+  - Elétrons must follow orbit paths with staggered durations (2s, 2.5s, 3s).
+  - Central nucleus pulses with an `easeInOut` scale effect.
+- **Colors**: Use `nucleusGradient` (#A78BFA to #7C3AED) and `orbitGradient` with transparency.
+- **Scalability**: Must support sizes `sm` (Header), `md`, `lg` (Splash/Hero), and `xl`.
+
+### 🌌 Immersive SplashScreen
+- **Duration**: ~3.5 seconds.
+- **Layout**: Full-screen `#0D0B1A` background with radial glow effects (`secondary/10` and `accent/10`).
+- **Typography**: "ÁTOMO QUÂNTICO" in Black Italic uppercase with wide tracking (`0.2em`).
+- **Transition**: Smooth `opacity` and `scale` exit to reveal the main app content.
+
+### ✨ Animation Principles
+- **Library**: Framer Motion is the standard.
+- **Feedback**: Every interaction should trigger a micro-interaction (scale or subtle glow).
+- **Smoothness**: Use `spring` transitions for layout changes and `linear` for continuous orbital movements.
