@@ -2,6 +2,7 @@
 <resources>
     <string name="app_name">Átomo Quântico</string>
     <string name="title_activity_main">Átomo Quântico</string>
-    <string name="package_name">com.atomoquantico.app</string>
-    <string name="custom_url_scheme">com.atomoquantico.app</string>
+    <string name="package_name">com.nano.atomoquantico</string>
+    <string name="custom_url_scheme">com.nano.atomoquantico</string>
+    <string name="default_web_client_id">434005661-aumq9bmpm2qb9p5s5pcq0dcvasbh40h0.apps.googleusercontent.com</string>
 </resources>

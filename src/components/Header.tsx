@@ -17,7 +17,7 @@ export function Header() {
   };
 
   return (
-    <header className="bg-background border-b border-gray-800 sticky top-0 z-30 shadow-lg">
+    <header className="bg-background border-b border-gray-800 sticky top-0 z-30 shadow-lg pt-[env(safe-area-inset-top)]">
       <nav className="max-w-[1600px] w-full mx-auto px-3 sm:px-6 lg:px-12 py-3 sm:py-4 flex items-center justify-between">
         {/* Lado Esquerdo: Logo */}
         <Link to="/" className="flex items-center space-x-3">

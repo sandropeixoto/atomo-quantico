@@ -58,7 +58,7 @@ export function Sidebar({ isOpen, setIsOpen }: SidebarProps) {
             initial="hidden"
             animate="visible"
             exit="hidden"
-            className="fixed top-0 left-0 bottom-0 w-72 bg-[#0D0B1A] border-r border-secondary/30 shadow-2xl z-50 flex flex-col"
+            className="fixed top-0 left-0 bottom-0 w-72 bg-[#0D0B1A] border-r border-secondary/30 shadow-2xl z-50 flex flex-col pt-[env(safe-area-inset-top)] pb-[env(safe-area-inset-bottom)]"
           >
             {/* Cabeçalho do Menu */}
             <div className="p-6 flex items-center justify-between border-b border-slate-700">
