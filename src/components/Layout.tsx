@@ -12,7 +12,7 @@ export function Layout() {
       <main className="flex-grow overflow-y-auto max-w-[1600px] w-full mx-auto px-2 sm:px-6 lg:px-12 py-4 sm:py-8">
         <Outlet />
       </main>
-      {!isLoginPage && <Footer />}
+      <Footer />
     </div>
   );
 }

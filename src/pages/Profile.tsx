@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { db } from '../services/firebase';
 import { doc, getDoc, setDoc } from 'firebase/firestore';
 import { useAuth } from '../contexts/AuthContext';
+import { ShieldAlert } from 'lucide-react';
 
 const states = [
   'AC', 'AL', 'AP', 'AM', 'BA', 'CE', 'DF', 'ES', 'GO', 'MA', 'MT', 'MS', 'MG',
@@ -59,8 +60,23 @@ const Profile = () => {
     return <div className="text-center py-10">Carregando perfil...</div>;
   }
 
+  const isBlocked = user?.status === 'blocked';
+
   return (
     <div className="max-w-4xl mx-auto py-12 px-4">
+      {isBlocked && (
+        <div className="bg-red-500/10 border-2 border-red-500/20 rounded-2xl p-6 mb-8 flex items-center gap-4">
+          <div className="bg-red-500 p-3 rounded-full text-white shadow-lg shadow-red-900/20">
+            <ShieldAlert size={24} />
+          </div>
+          <div>
+            <h2 className="text-lg font-bold text-red-400 uppercase tracking-tight">Sua conta possui restrições</h2>
+            <p className="text-text-secondary text-sm">
+              Motivo: <span className="text-red-400/80 font-bold">{user.blockedReason || 'Violação das diretrizes'}</span>
+            </p>
+          </div>
+        </div>
+      )}
       <h1 className="text-3xl font-bold text-text-primary mb-6">Meu Perfil</h1>
       <form onSubmit={handleSave} className="space-y-6">
         <div>

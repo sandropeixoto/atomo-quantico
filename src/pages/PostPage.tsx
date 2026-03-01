@@ -1,11 +1,12 @@
 import { useState, useEffect } from 'react';
 import { useParams, useNavigate, Link } from 'react-router-dom';
-import { doc, getDoc, collection, getDocs, query, orderBy, runTransaction, where } from 'firebase/firestore';
+import { doc, getDoc, collection, getDocs, query, orderBy, runTransaction, where, updateDoc } from 'firebase/firestore';
 import { db } from '../services/firebase';
 import { useAuth } from '../contexts/AuthContext';
-import { Heart, MessageSquare, ArrowLeft, User } from 'lucide-react';
+import { Heart, MessageSquare, ArrowLeft, User, ShieldAlert, EyeOff } from 'lucide-react';
 import { useUserProgressStore } from '../stores/userProgressStore';
 import { motion, AnimatePresence } from 'framer-motion';
+import { ModerationModal } from '../components/ModerationModal';
 
 interface Post {
   id: string;
@@ -15,6 +16,8 @@ interface Post {
   authorName?: string;
   likesCount?: number;
   commentsCount?: number;
+  status?: 'active' | 'hidden' | 'removed';
+  moderationReason?: string;
 }
 
 interface Comment {
@@ -37,6 +40,7 @@ const PostPage = () => {
   const [isLiked, setIsLiked] = useState(false);
   const [isLiking, setIsLiking] = useState(false);
   const [showReward, setShowReward] = useState(false);
+  const [isModModalOpen, setIsModModalOpen] = useState(false);
 
   const fetchPostAndComments = async () => {
     if (!id) return;
@@ -86,7 +90,7 @@ const PostPage = () => {
   }, [id, user]);
 
   const handleLike = async () => {
-    if (isLiking || !post) return;
+    if (isLiking || !post || post.status === 'hidden' || user?.status === 'blocked') return;
     if (!user) { navigate('/login'); return; }
     if (!id) return;
     setIsLiking(true);
@@ -122,7 +126,7 @@ const PostPage = () => {
 
   const handleCommentSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    if (newComment.trim() === '' || !user || !id || !post) return;
+    if (newComment.trim() === '' || !user || !id || !post || user.status === 'blocked') return;
 
     earnPhotons('comment', post.authorId);
 
@@ -151,12 +155,49 @@ const PostPage = () => {
     }
   };
 
+  const handleModerate = async (data: { status: 'active' | 'hidden' | 'removed'; reason: string; blockUser: boolean }) => {
+    if (!post || !user || !id) return;
+
+    try {
+      const postRef = doc(db, 'entries', id);
+      await updateDoc(postRef, {
+        status: data.status,
+        moderationReason: data.reason,
+        moderatedBy: user.uid
+      });
+
+      if (data.blockUser) {
+        const authorRef = doc(db, 'users', post.authorId);
+        await updateDoc(authorRef, {
+          status: 'blocked',
+          blockedReason: data.reason
+        });
+      }
+
+      setPost(prev => prev ? { ...prev, status: data.status, moderationReason: data.reason } : null);
+    } catch (e) {
+      console.error("Erro na moderação:", e);
+    }
+  };
+
   if (!post) {
     return <div className="text-center py-20"><motion.div animate={{ rotate: 360 }} transition={{ repeat: Infinity, duration: 1 }} className="inline-block">⚛️</motion.div></div>;
   }
 
+  const isModerator = user?.role === 'admin' || user?.role === 'moderator';
+  const isHidden = post.status === 'hidden';
+  const isBlocked = user?.status === 'blocked';
+
   return (
     <div className="max-w-3xl mx-auto py-4 sm:py-8 px-2 sm:px-4">
+      <ModerationModal
+        isOpen={isModModalOpen}
+        onClose={() => setIsModModalOpen(false)}
+        onConfirm={handleModerate}
+        targetType="post"
+        authorName={post.authorName || 'Anônimo'}
+        currentStatus={post.status}
+      />
       {/* Botão Voltar */}
       <button 
         onClick={() => navigate(-1)} 
@@ -166,19 +207,40 @@ const PostPage = () => {
         <span className="font-medium">Voltar</span>
       </button>
 
-      <div className="bg-primary rounded-2xl shadow-lg overflow-hidden border border-gray-800">
+      <div className={`bg-primary rounded-2xl shadow-lg overflow-hidden border ${isHidden ? 'border-red-900/30' : 'border-gray-800'}`}>
         <div className="p-6">
-          <div className="flex items-center space-x-3 mb-4">
-            <div className="bg-secondary/20 p-2 rounded-full">
-              <User className="text-secondary" size={24} />
+          <div className="flex items-center justify-between mb-4">
+            <div className="flex items-center space-x-3">
+              <div className="bg-secondary/20 p-2 rounded-full">
+                <User className="text-secondary" size={24} />
+              </div>
+              <div>
+                <p className="font-bold text-text-primary">{post.authorName}</p>
+                <p className="text-xs text-gray-400">{new Date(post.timestamp.seconds * 1000).toLocaleString('pt-BR')}</p>
+              </div>
             </div>
-            <div>
-              <p className="font-bold text-text-primary">{post.authorName}</p>
-              <p className="text-xs text-gray-400">{new Date(post.timestamp.seconds * 1000).toLocaleString('pt-BR')}</p>
-            </div>
+            {isModerator && (
+              <button 
+                onClick={() => setIsModModalOpen(true)}
+                className={`p-2 rounded-lg transition-colors ${isHidden ? 'bg-red-500 text-white' : 'bg-gray-800 text-gray-400 hover:bg-secondary hover:text-white'}`}
+              >
+                <ShieldAlert size={20} />
+              </button>
+            )}
           </div>
           
-          <p className="text-text-primary text-xl leading-relaxed mb-6 whitespace-pre-wrap">{post.text}</p>
+          {isHidden && !isModerator ? (
+            <div className="bg-red-500/10 border border-red-500/20 rounded-2xl p-8 text-center my-6">
+              <EyeOff size={48} className="text-red-500/40 mx-auto mb-4" />
+              <p className="text-red-200/60 font-medium">Esta postagem foi ocultada por moderação.</p>
+              <p className="text-red-400/40 text-sm mt-1">Motivo: {post.moderationReason}</p>
+            </div>
+          ) : (
+            <p className={`text-xl leading-relaxed mb-6 whitespace-pre-wrap ${isHidden ? 'text-red-200/40 italic' : 'text-text-primary'}`}>
+              {isHidden && <span className="text-xs font-black uppercase tracking-tighter bg-red-500 text-white px-2 py-0.5 rounded mr-2">Oculto</span>}
+              {post.text}
+            </p>
+          )}
           
           <div className="flex items-center space-x-8 py-4 border-t border-gray-800 text-text-secondary">
             <motion.button 
@@ -210,24 +272,33 @@ const PostPage = () => {
 
           {/* Campo de Comentário estilo Twitter */}
           {user ? (
-            <form onSubmit={handleCommentSubmit} className="mt-4 border-t border-gray-800 pt-4">
-              <textarea
-                className="w-full bg-transparent text-text-primary text-lg focus:outline-none resize-none placeholder:text-gray-500"
-                rows={2}
-                placeholder="Postar sua resposta"
-                value={newComment}
-                onChange={(e) => setNewComment(e.target.value)}
-              />
-              <div className="flex justify-end mt-2">
-                <button 
-                  type="submit" 
-                  disabled={!newComment.trim()}
-                  className="bg-secondary text-text-primary font-bold py-2 px-6 rounded-full hover:opacity-90 transition-opacity disabled:opacity-50"
-                >
-                  Responder
-                </button>
+            isBlocked ? (
+              <div className="mt-4 border-t border-red-900/20 pt-6 text-center">
+                <div className="bg-red-500/10 rounded-xl p-4 inline-flex items-center gap-3">
+                  <ShieldAlert size={18} className="text-red-400" />
+                  <p className="text-red-400/80 text-sm font-bold uppercase tracking-tight">Interações Restritas: {user.blockedReason}</p>
+                </div>
               </div>
-            </form>
+            ) : (
+              <form onSubmit={handleCommentSubmit} className="mt-4 border-t border-gray-800 pt-4">
+                <textarea
+                  className="w-full bg-transparent text-text-primary text-lg focus:outline-none resize-none placeholder:text-gray-500"
+                  rows={2}
+                  placeholder="Postar sua resposta"
+                  value={newComment}
+                  onChange={(e) => setNewComment(e.target.value)}
+                />
+                <div className="flex justify-end mt-2">
+                  <button 
+                    type="submit" 
+                    disabled={!newComment.trim()}
+                    className="bg-secondary text-text-primary font-bold py-2 px-6 rounded-full hover:opacity-90 transition-opacity disabled:opacity-50"
+                  >
+                    Responder
+                  </button>
+                </div>
+              </form>
+            )
           ) : (
             <p className="text-text-secondary text-center py-4 bg-gray-800/50 rounded-xl mt-4">
               Faça <Link to="/login" className="text-secondary font-semibold hover:underline">login</Link> para responder.

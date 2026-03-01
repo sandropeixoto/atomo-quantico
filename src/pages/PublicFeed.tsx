@@ -1,25 +1,19 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { collection, getDocs, query, where, orderBy, doc, runTransaction, collectionGroup } from 'firebase/firestore';
+import { collection, getDocs, query, where, orderBy, doc, runTransaction, collectionGroup, updateDoc } from 'firebase/firestore';
 import { db } from '../services/firebase';
 import { useAuth } from '../contexts/AuthContext';
 import { ArrowLeft } from 'lucide-react';
 import { useUserProgressStore } from '../stores/userProgressStore';
 import { GratitudeCard } from './Home';
-
-interface PublicEntry {
-  id: string;
-  text: string;
-  authorId: string;
-  timestamp: { seconds: number; };
-  likesCount: number;
-  commentsCount: number;
-  authorName?: string;
-}
+import type { PublicEntry } from './Home';
+import { ModerationModal } from '../components/ModerationModal';
 
 const PublicFeed = () => {
   const [entries, setEntries] = useState<PublicEntry[]>([]);
   const [likedEntries, setLikedEntries] = useState<string[]>([]);
+  const [isModModalOpen, setIsModModalOpen] = useState(false);
+  const [selectedEntry, setSelectedEntry] = useState<PublicEntry | null>(null);
   const { user } = useAuth();
   const navigate = useNavigate();
   const { earnPhotons } = useUserProgressStore();
@@ -86,8 +80,49 @@ const PublicFeed = () => {
     }
   };
 
+  const handleModerate = (entry: PublicEntry) => {
+    setSelectedEntry(entry);
+    setIsModModalOpen(true);
+  };
+
+  const confirmModeration = async (data: { status: 'active' | 'hidden' | 'removed'; reason: string; blockUser: boolean }) => {
+    if (!selectedEntry || !user) return;
+
+    try {
+      const entryRef = doc(db, 'entries', selectedEntry.id);
+      await updateDoc(entryRef, {
+        status: data.status,
+        moderationReason: data.reason,
+        moderatedBy: user.uid
+      });
+
+      if (data.blockUser) {
+        const authorRef = doc(db, 'users', selectedEntry.authorId);
+        await updateDoc(authorRef, {
+          status: 'blocked',
+          blockedReason: data.reason
+        });
+      }
+
+      setEntries(prev => prev.map(e => e.id === selectedEntry.id ? { ...e, status: data.status, moderationReason: data.reason } : e));
+      setSelectedEntry(null);
+    } catch (e) {
+      console.error("Erro na moderação:", e);
+    }
+  };
+
   return (
     <div className="max-w-3xl mx-auto py-4 sm:py-8 px-2 sm:px-4">
+      {selectedEntry && (
+        <ModerationModal
+          isOpen={isModModalOpen}
+          onClose={() => setIsModModalOpen(false)}
+          onConfirm={confirmModeration}
+          targetType="post"
+          authorName={selectedEntry.authorName || 'Anônimo'}
+          currentStatus={selectedEntry.status}
+        />
+      )}
       <div className="flex items-center space-x-4 mb-8">
         <button onClick={() => navigate(-1)} className="p-2 hover:bg-white/10 rounded-full transition-colors">
           <ArrowLeft size={24} />
@@ -105,6 +140,7 @@ const PublicFeed = () => {
             entry={entry} 
             isLiked={likedEntries.includes(entry.id)} 
             onLike={handleLike} 
+            onModerate={handleModerate}
           />
         ))}
       </div>

@@ -3,11 +3,11 @@ import { Link, useNavigate } from 'react-router-dom';
 import { collection, getDocs, query, where, orderBy, doc, runTransaction, collectionGroup, limit, addDoc } from 'firebase/firestore';
 import { db } from '../services/firebase';
 import { useAuth } from '../contexts/AuthContext';
-import { ThumbsUp, MessageSquare, Award, User, Send } from 'lucide-react';
+import { ShieldAlert, EyeOff, ThumbsUp, MessageSquare, Award, User, Send } from 'lucide-react';
 import { useUserProgressStore } from '../stores/userProgressStore';
 import { motion, AnimatePresence } from 'framer-motion';
 
-interface PublicEntry {
+export interface PublicEntry {
   id: string;
   text: string;
   authorId: string;
@@ -15,6 +15,8 @@ interface PublicEntry {
   likesCount: number;
   commentsCount: number;
   authorName?: string;
+  status?: 'active' | 'hidden' | 'removed';
+  moderationReason?: string;
 }
 
 const JourneySummary = () => {
@@ -122,10 +124,24 @@ const GratitudeInput = ({ onPostSuccess }: { onPostSuccess: () => void }) => {
   );
 };
 
-export const GratitudeCard = ({ entry, isLiked, onLike }: { entry: PublicEntry, isLiked: boolean, onLike: (id: string, authorId: string) => void }) => {
+export const GratitudeCard = ({ 
+  entry, 
+  isLiked, 
+  onLike,
+  onModerate 
+}: { 
+  entry: PublicEntry, 
+  isLiked: boolean, 
+  onLike: (id: string, authorId: string) => void,
+  onModerate?: (entry: PublicEntry) => void
+}) => {
   const [showReward, setShowReward] = useState(false);
+  const { user } = useAuth();
+  const isModerator = user?.role === 'admin' || user?.role === 'moderator';
+  const isHidden = entry.status === 'hidden';
 
   const handleLikeClick = () => {
+    if (isHidden && !isModerator) return;
     if (!isLiked) {
       setShowReward(true);
       setTimeout(() => setShowReward(false), 1000);
@@ -134,27 +150,51 @@ export const GratitudeCard = ({ entry, isLiked, onLike }: { entry: PublicEntry, 
   };
 
   return (
-    <div className="bg-primary rounded-2xl border border-gray-800 hover:bg-white/[0.02] transition-colors overflow-hidden group">
+    <div className={`bg-primary rounded-2xl border transition-colors overflow-hidden group ${isHidden ? 'border-red-900/30 bg-red-950/5' : 'border-gray-800 hover:bg-white/[0.02]'}`}>
       <div className="p-5">
-        <div className="flex items-center space-x-2 mb-3">
-          <div className="bg-gray-800 p-1.5 rounded-full">
-            <User size={14} className="text-gray-400" />
+        <div className="flex items-center justify-between mb-3">
+          <div className="flex items-center space-x-2">
+            <div className="bg-gray-800 p-1.5 rounded-full">
+              <User size={14} className="text-gray-400" />
+            </div>
+            <Link to={`/profile/${entry.authorId}`} className="text-sm font-bold text-text-secondary hover:text-secondary transition-colors">
+              {entry.authorName}
+            </Link>
+            <span className="text-gray-600 text-xs">· {new Date(entry.timestamp.seconds * 1000).toLocaleDateString('pt-BR')}</span>
           </div>
-          <Link to={`/profile/${entry.authorId}`} className="text-sm font-bold text-text-secondary hover:text-secondary transition-colors">
-            {entry.authorName}
-          </Link>
-          <span className="text-gray-600 text-xs">· {new Date(entry.timestamp.seconds * 1000).toLocaleDateString('pt-BR')}</span>
+
+          {isModerator && onModerate && (
+            <button 
+              onClick={() => onModerate(entry)}
+              className={`p-2 rounded-lg transition-colors ${isHidden ? 'bg-red-500 text-white' : 'bg-gray-800 text-gray-400 hover:bg-secondary hover:text-white'}`}
+              title="Moderar postagem"
+            >
+              <ShieldAlert size={16} />
+            </button>
+          )}
         </div>
         
-        <p className="text-text-primary text-lg leading-relaxed mb-4 whitespace-pre-wrap">
-          {entry.text}
-        </p>
+        {isHidden && !isModerator ? (
+          <div className="bg-black/20 border border-red-900/20 rounded-xl p-4 flex items-center gap-3 mb-4">
+            <EyeOff size={20} className="text-red-400 shrink-0" />
+            <p className="text-red-200/60 text-sm italic">
+              Esta postagem foi ocultada por moderação. <br/>
+              <span className="text-xs opacity-80">Motivo: {entry.moderationReason || 'Violação das diretrizes'}</span>
+            </p>
+          </div>
+        ) : (
+          <p className={`text-lg leading-relaxed mb-4 whitespace-pre-wrap ${isHidden ? 'text-red-200/40 italic' : 'text-text-primary'}`}>
+            {isHidden && <span className="text-xs font-black uppercase tracking-tighter bg-red-500 text-white px-2 py-0.5 rounded mr-2">Oculto</span>}
+            {entry.text}
+          </p>
+        )}
 
         <div className="flex items-center space-x-6 text-gray-500">
           <motion.button 
             whileTap={{ scale: 0.8 }}
             onClick={handleLikeClick} 
-            className={`flex items-center space-x-2 relative transition-colors ${isLiked ? 'text-red-500' : 'hover:text-red-500'}`}
+            disabled={isHidden && !isModerator}
+            className={`flex items-center space-x-2 relative transition-colors ${isLiked ? 'text-red-500' : 'hover:text-red-500'} disabled:opacity-30`}
           >
             <ThumbsUp size={18} fill={isLiked ? 'currentColor' : 'none'} />
             <span className="text-sm font-bold">{entry.likesCount || 0}</span>

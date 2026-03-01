@@ -4,6 +4,8 @@ import { auth } from "../services/firebase";
 import { AtomoQuanticoLogo } from "../components/AtomoQuanticoLogo";
 import { Capacitor } from "@capacitor/core";
 import { FirebaseAuthentication } from "@capacitor-firebase/authentication";
+import { Link } from "react-router-dom";
+import { ArrowLeft } from "lucide-react";
 
 export function Login() {
   const [isAuthenticating, setIsAuthenticating] = useState(false);
@@ -73,7 +75,15 @@ export function Login() {
             )}
           </button>
           
-          <div className="mt-10 pt-6 border-t border-white/5">
+          <div className="mt-10 pt-6 border-t border-white/5 flex flex-col items-center gap-4">
+            <Link 
+              to="/" 
+              className="text-text-secondary hover:text-secondary flex items-center gap-2 text-sm font-medium transition-colors"
+            >
+              <ArrowLeft size={16} />
+              Voltar para o Início
+            </Link>
+            
             <p className="text-[10px] text-text-secondary uppercase tracking-[0.2em] opacity-40 font-bold">
               Versão 2.0 • Sistema Nativo
             </p>

@@ -90,6 +90,8 @@ const GratitudeJournal = () => {
     )
   }
 
+  const isBlocked = user.status === 'blocked';
+
   return (
     <div className="max-w-7xl mx-auto py-12 px-4">
       {/* Modal de Confirmação */}
@@ -105,39 +107,52 @@ const GratitudeJournal = () => {
 
       <h1 className="text-4xl font-bold text-center text-text-primary mb-12">Meu Diário de Gratidão</h1>
 
-      <div className="bg-background rounded-2xl shadow-lg p-8 mb-12">
-        <form onSubmit={handleSubmit}>
-          <h2 className="text-2xl font-semibold text-text-primary mb-4">Pelo que você é grato hoje?</h2>
-          <textarea
-            className="w-full p-4 bg-primary text-text-primary border border-gray-700 rounded-lg focus:ring-2 focus:ring-secondary focus:outline-none transition-shadow placeholder:text-gray-400"
-            rows={5}
-            placeholder="Comece a escrever..."
-            value={entry}
-            onChange={(e: React.ChangeEvent<HTMLTextAreaElement>) => setEntry(e.target.value)}
-          />
-
-          <div className="flex items-center mt-4">
-            <input
-              type="checkbox"
-              id="isPublic"
-              checked={isPublic}
-              onChange={(e) => setIsPublic(e.target.checked)}
-              className="h-4 w-4 text-secondary focus:ring-secondary border-gray-300 rounded"
-            />
-            <label htmlFor="isPublic" className="ml-2 block text-sm text-text-secondary">
-              Tornar esta entrada pública
-            </label>
+      {isBlocked ? (
+        <div className="bg-red-500/10 border-2 border-red-500/20 rounded-2xl p-8 mb-12 text-center">
+          <div className="bg-red-500 w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4 shadow-[0_0_20px_rgba(239,68,68,0.4)]">
+            <Trash2 size={32} className="text-white" />
           </div>
+          <h2 className="text-2xl font-bold text-red-400 mb-2 uppercase tracking-tight">Interações Restritas</h2>
+          <p className="text-text-secondary max-w-md mx-auto">
+            Sua conta foi restringida por violar as diretrizes da comunidade. <br/>
+            <span className="font-bold text-red-400/80">Motivo: {user.blockedReason || 'Comportamento inadequado'}</span>
+          </p>
+        </div>
+      ) : (
+        <div className="bg-background rounded-2xl shadow-lg p-8 mb-12">
+          <form onSubmit={handleSubmit}>
+            <h2 className="text-2xl font-semibold text-text-primary mb-4">Pelo que você é grato hoje?</h2>
+            <textarea
+              className="w-full p-4 bg-primary text-text-primary border border-gray-700 rounded-lg focus:ring-2 focus:ring-secondary focus:outline-none transition-shadow placeholder:text-gray-400"
+              rows={5}
+              placeholder="Comece a escrever..."
+              value={entry}
+              onChange={(e: React.ChangeEvent<HTMLTextAreaElement>) => setEntry(e.target.value)}
+            />
 
-          <button
-            type="submit"
-            className="bg-secondary text-text-primary font-semibold py-3 px-6 rounded-lg hover:opacity-90 transition-opacity mt-4 inline-flex items-center space-x-2"
-          >
-            <PenSquare size={20} />
-            <span>Registrar Gratidão</span>
-          </button>
-        </form>
-      </div>
+            <div className="flex items-center mt-4">
+              <input
+                type="checkbox"
+                id="isPublic"
+                checked={isPublic}
+                onChange={(e) => setIsPublic(e.target.checked)}
+                className="h-4 w-4 text-secondary focus:ring-secondary border-gray-300 rounded"
+              />
+              <label htmlFor="isPublic" className="ml-2 block text-sm text-text-secondary">
+                Tornar esta entrada pública
+              </label>
+            </div>
+
+            <button
+              type="submit"
+              className="bg-secondary text-text-primary font-semibold py-3 px-6 rounded-lg hover:opacity-90 transition-opacity mt-4 inline-flex items-center space-x-2"
+            >
+              <PenSquare size={20} />
+              <span>Registrar Gratidão</span>
+            </button>
+          </form>
+        </div>
+      )}
 
       <div className="bg-background rounded-2xl shadow-lg p-8 mb-12">
         <h2 className="text-3xl font-bold text-text-primary mb-6 text-center">Sua Nuvem de Gratidão</h2>

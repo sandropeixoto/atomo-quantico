@@ -2,57 +2,72 @@ rules_version = '2';
 
 service cloud.firestore {
   match /databases/{database}/documents {
+    
+    // Funções Auxiliares
+    function isSignedIn() {
+      return request.auth != null;
+    }
+    
+    function getUserData() {
+      return get(/databases/$(database)/documents/users/$(request.auth.uid)).data;
+    }
+    
+    function isModerator() {
+      return isSignedIn() && (getUserData().role == 'moderator' || getUserData().role == 'admin');
+    }
+    
+    function isAdmin() {
+      return isSignedIn() && getUserData().role == 'admin';
+    }
+    
+    function isNotBlocked() {
+      return isSignedIn() && getUserData().status != 'blocked';
+    }
 
     match /entries/{entryId} {
-      // Qualquer um pode ler posts públicos. Usuários logados podem ler seus próprios posts privados.
-      allow read: if resource.data.isPublic == true || (request.auth != null && request.auth.uid == resource.data.authorId);
+      // Qualquer um pode ler posts públicos (ativos ou ocultos para mostrar o aviso).
+      allow read: if resource.data.isPublic == true || (isSignedIn() && request.auth.uid == resource.data.authorId);
       
-      // Usuários logados podem criar novas entradas para si mesmos.
-      allow create: if request.auth != null && request.auth.uid == request.resource.data.authorId
+      // Apenas usuários não bloqueados podem criar posts.
+      allow create: if isSignedIn() && isNotBlocked() 
+                    && request.auth.uid == request.resource.data.authorId
                     && request.resource.data.likesCount == 0
                     && request.resource.data.commentsCount == 0;
       
-      // O autor pode atualizar completamente seu post.
-      // Qualquer usuário autenticado pode atualizar APENAS a contagem de likes e comentários.
-      allow update: if request.auth != null && (
-        (request.auth.uid == resource.data.authorId) ||
-        (request.resource.data.diff(resource.data).affectedKeys().hasOnly(['likesCount', 'commentsCount']))
+      // Autores podem atualizar se não estiverem bloqueados.
+      // Moderadores podem atualizar campos de status e moderação.
+      allow update: if isSignedIn() && (
+        (request.auth.uid == resource.data.authorId && isNotBlocked() && !request.resource.data.diff(resource.data).affectedKeys().hasAny(['status', 'moderationReason', 'moderatedBy'])) ||
+        (isModerator() && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['status', 'moderationReason', 'moderatedBy'])) ||
+        (request.resource.data.diff(resource.data).affectedKeys().hasOnly(['likesCount', 'commentsCount']) && isNotBlocked())
       );
 
-      // O autor pode deletar seu próprio post.
-      allow delete: if request.auth != null && request.auth.uid == resource.data.authorId;
+      // Autores ou Moderadores podem deletar.
+      allow delete: if isSignedIn() && (request.auth.uid == resource.data.authorId || isModerator());
 
       match /likes/{userId} {
-        // A leitura de likes é permitida em posts públicos ou pelo autor do post.
-        allow read: if get(/databases/$(database)/documents/entries/$(entryId)).data.isPublic == true 
-                    || (request.auth != null && get(/databases/$(database)/documents/entries/$(entryId)).data.authorId == request.auth.uid);
-
-        // Usuário só pode criar um like para si mesmo, e o ID do documento de like deve ser seu UID.
-        allow create: if request.auth != null && request.auth.uid == request.resource.data.userId && request.auth.uid == userId;
-
-        // Usuário só pode deletar seu próprio like.
-        allow delete: if request.auth != null && request.auth.uid == userId;
+        allow read: if true;
+        allow create: if isSignedIn() && isNotBlocked() && request.auth.uid == userId;
+        allow delete: if isSignedIn() && request.auth.uid == userId;
       }
 
       match /comments/{commentId} {
-        // A leitura de comentários é permitida em posts públicos ou pelo autor do post.
-        allow read: if get(/databases/$(database)/documents/entries/$(entryId)).data.isPublic == true 
-                    || (request.auth != null && get(/databases/$(database)/documents/entries/$(entryId)).data.authorId == request.auth.uid);
-        
-        // Usuário pode criar um comentário se for o autor do comentário.
-        allow create: if request.auth != null && request.auth.uid == request.resource.data.authorId;
-        
-        // O autor do comentário pode atualizá-lo ou deletá-lo.
-        allow update, delete: if request.auth != null && request.auth.uid == resource.data.authorId;
+        allow read: if true;
+        allow create: if isSignedIn() && isNotBlocked() && request.auth.uid == request.resource.data.authorId;
+        allow update, delete: if isSignedIn() && (request.auth.uid == resource.data.authorId || isModerator());
       }
     }
 
     match /users/{userId} {
-      // Qualquer um pode ler perfis de usuário (necessário para ver nomes de autor).
       allow read: if true;
       
-      // Usuário só pode criar ou atualizar seu próprio perfil.
-      allow create, update: if request.auth != null && request.auth.uid == userId;
+      // Apenas o próprio usuário pode editar dados básicos.
+      // Apenas Admins podem alterar role e status de bloqueio.
+      allow create: if isSignedIn() && request.auth.uid == userId;
+      allow update: if isSignedIn() && (
+        (request.auth.uid == userId && !request.resource.data.diff(resource.data).affectedKeys().hasAny(['role', 'status', 'blockedReason'])) ||
+        (isAdmin() && request.resource.data.diff(resource.data).affectedKeys().hasAny(['role', 'status', 'blockedReason']))
+      );
     }
   }
 }
