@@ -1,7 +1,7 @@
 
 import { motion, AnimatePresence, type Variants } from 'framer-motion';
 import { Link } from 'react-router-dom';
-import { Home, BookOpen, Target, Award, Info, X } from 'lucide-react';
+import { Home, BookOpen, Target, Award, Info, X, Users } from 'lucide-react';
 import { useAuth } from '../contexts/AuthContext';
 import { useUserProgressStore } from '../stores/userProgressStore';
 
@@ -40,6 +40,7 @@ const navItems = [
 export function Sidebar({ isOpen, setIsOpen }: SidebarProps) {
   const { user } = useAuth();
   const { photons } = useUserProgressStore();
+  const isAdmin = user?.role === 'admin';
 
   return (
     <AnimatePresence>
@@ -77,7 +78,7 @@ export function Sidebar({ isOpen, setIsOpen }: SidebarProps) {
             )}
 
             {/* Itens de Navegação */}
-            <nav className="flex-grow p-4">
+            <nav className="flex-grow p-4 overflow-y-auto">
               <ul className="space-y-2">
                 {navItems.map((item) => (
                   <li key={item.name}>
@@ -91,6 +92,25 @@ export function Sidebar({ isOpen, setIsOpen }: SidebarProps) {
                     </Link>
                   </li>
                 ))}
+
+                {/* Seção Administrativa */}
+                {isAdmin && (
+                  <>
+                    <div className="pt-4 pb-2 px-3">
+                      <p className="text-[10px] font-black uppercase tracking-[0.2em] text-secondary opacity-60">Administração</p>
+                    </div>
+                    <li>
+                      <Link
+                        to="/admin/users"
+                        onClick={() => setIsOpen(false)}
+                        className="flex items-center space-x-4 p-3 rounded-lg text-secondary hover:bg-secondary/10 transition-colors duration-200"
+                      >
+                        <Users size={22} />
+                        <span className="text-lg font-bold italic uppercase tracking-tighter">Usuários</span>
+                      </Link>
+                    </li>
+                  </>
+                )}
               </ul>
             </nav>
           </motion.div>

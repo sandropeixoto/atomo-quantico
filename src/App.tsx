@@ -9,10 +9,13 @@ import PublicFeed from './pages/PublicFeed';
 import PostPage from './pages/PostPage';
 import Profile from './pages/Profile';
 import { PublicProfile } from './pages/PublicProfile';
+import { AdminUsers } from './pages/AdminUsers';
+import { EditUser } from './pages/EditUser';
 import { Journey } from './pages/Journey';
 import { Login } from './pages/Login';
 import { AuthProvider, useAuth } from './contexts/AuthContext';
 import { PrivateRoute } from './components/PrivateRoute';
+import { AdminRoute } from './components/AdminRoute';
 import { SplashScreen } from './components/SplashScreen';
 
 // Componente para gerenciar a lógica de roteamento
@@ -48,6 +51,10 @@ const AppRoutes = () => {
           <Route path="/profile" element={<PrivateRoute><Profile /></PrivateRoute>} />
           <Route path="/profile/:uid" element={<PublicProfile />} />
           <Route path="/journey" element={<PrivateRoute><Journey /></PrivateRoute>} />
+          
+          {/* Rotas Administrativas */}
+          <Route path="/admin/users" element={<AdminRoute><AdminUsers /></AdminRoute>} />
+          <Route path="/admin/users/edit/:uid" element={<AdminRoute><EditUser /></AdminRoute>} />
           
           {/* Se o usuário estiver logado, redireciona /login para o diário */}
           <Route 
