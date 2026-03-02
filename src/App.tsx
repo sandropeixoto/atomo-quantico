@@ -8,6 +8,7 @@ import GratitudeJournal from './pages/GratitudeJournal';
 import PublicFeed from './pages/PublicFeed';
 import PostPage from './pages/PostPage';
 import Profile from './pages/Profile';
+import { PublicProfile } from './pages/PublicProfile';
 import { Journey } from './pages/Journey';
 import { Login } from './pages/Login';
 import { AuthProvider, useAuth } from './contexts/AuthContext';
@@ -45,6 +46,7 @@ const AppRoutes = () => {
           <Route path="/public-feed" element={<PublicFeed />} />
           <Route path="/post/:id" element={<PostPage />} />
           <Route path="/profile" element={<PrivateRoute><Profile /></PrivateRoute>} />
+          <Route path="/profile/:uid" element={<PublicProfile />} />
           <Route path="/journey" element={<PrivateRoute><Journey /></PrivateRoute>} />
           
           {/* Se o usuário estiver logado, redireciona /login para o diário */}
