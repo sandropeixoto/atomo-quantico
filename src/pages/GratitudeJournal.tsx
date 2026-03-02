@@ -4,7 +4,6 @@ import { collection, addDoc, getDocs, query, where, orderBy, deleteDoc, doc } fr
 import { db } from '../services/firebase';
 import { useAuth } from '../contexts/AuthContext';
 import { useUserProgressStore } from '../stores/userProgressStore';
-import { ProbabilityCloud } from '../components/ProbabilityCloud';
 import { PenSquare, Trash2 } from 'lucide-react';
 import { ConfirmationModal } from '../components/ConfirmationModal';
 
@@ -154,11 +153,7 @@ const GratitudeJournal = () => {
         </div>
       )}
 
-      <div className="bg-background rounded-2xl shadow-lg p-8 mb-12">
-        <h2 className="text-3xl font-bold text-text-primary mb-6 text-center">Sua Nuvem de Gratidão</h2>
-        {/* A correção é aqui: passamos o estado 'entries' para o componente */}
-        <ProbabilityCloud entries={entries} />
-      </div>
+
 
       <div>
         <h2 className="text-3xl font-bold text-text-primary mb-8">Suas Memórias de Gratidão</h2>

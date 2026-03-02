@@ -1,38 +1,11 @@
-import { useState, useEffect } from 'react';
 import { useUserProgressStore } from '../stores/userProgressStore';
 import { Zap, Award, Atom } from 'lucide-react';
-import { ProbabilityCloud } from '../components/ProbabilityCloud';
 import { Link } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
-import { collection, query, where, orderBy, getDocs } from 'firebase/firestore';
-import { db } from '../services/firebase';
-
-interface JournalEntry {
-  text: string;
-}
 
 export function Journey() {
   const { user } = useAuth();
   const { photons, level, levelName, progress, isInitialized } = useUserProgressStore();
-  const [entries, setEntries] = useState<JournalEntry[]>([]);
-
-  useEffect(() => {
-    const fetchEntries = async () => {
-      if (!user) return;
-      try {
-        const q = query(collection(db, 'entries'), where('authorId', '==', user.uid), orderBy('timestamp', 'desc'));
-        const querySnapshot = await getDocs(q);
-        const data = querySnapshot.docs.map(doc => ({ text: doc.data().text }));
-        setEntries(data);
-      } catch (error) {
-        console.error("Error fetching entries:", error);
-      }
-    };
-
-    if (user) {
-      fetchEntries();
-    }
-  }, [user]);
 
   // Mostra um estado de carregamento enquanto os dados do usuário estão sendo buscados
   if (!isInitialized) {
@@ -89,15 +62,10 @@ export function Journey() {
         <p className="text-text-secondary">Em breve: Desbloqueie medalhas e recompensas exclusivas ao atingir novos marcos em sua jornada de gratidão!</p>
       </div>
 
-      {/* Nuvem de Probabilidades */}
-      <div className="bg-primary p-8 rounded-xl shadow-lg">
-        <h2 className="text-3xl font-bold text-text-primary mb-6 text-center">Sua Nuvem de Gratidão</h2>
-        <ProbabilityCloud entries={entries} />
-        <div className="text-center mt-6">
-          <Link to="/gratitude-journal" className="text-secondary hover:underline">
-            Gerenciar suas entradas no Diário &rarr;
-          </Link>
-        </div>
+      <div className="text-center">
+        <Link to="/gratitude-journal" className="text-secondary hover:underline font-bold text-lg">
+          Gerenciar meu Diário de Gratidão &rarr;
+        </Link>
       </div>
     </div>
   );
