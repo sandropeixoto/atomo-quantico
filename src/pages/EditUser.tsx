@@ -3,8 +3,14 @@ import { useParams, useNavigate } from 'react-router-dom';
 import { doc, getDoc, updateDoc } from 'firebase/firestore';
 import { db } from '../services/firebase';
 import { useAuth } from '../contexts/AuthContext';
-import { ArrowLeft, User, Shield, ShieldAlert, Save, CheckCircle2 } from 'lucide-react';
+import { ArrowLeft, User, Shield, ShieldAlert, Save, CheckCircle2, Plus, Trash2, ExternalLink } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
+
+interface UserService {
+  name: string;
+  url: string;
+  isActive: boolean;
+}
 
 export function EditUser() {
   const { uid } = useParams<{ uid: string }>();
@@ -24,6 +30,9 @@ export function EditUser() {
     photons: 0,
   });
 
+  const [services, setServices] = useState<UserService[]>([]);
+  const [knownServices, setKnownServices] = useState<string[]>([]);
+
   useEffect(() => {
     const fetchUser = async () => {
       if (!uid) return;
@@ -40,6 +49,14 @@ export function EditUser() {
             blockedReason: data.blockedReason || '',
             photons: data.photons || 0,
           });
+          setServices(data.services || []);
+        }
+
+        // Buscar nomes de serviços conhecidos para o autocomplete
+        const metaRef = doc(db, 'metadata', 'services');
+        const metaSnap = await getDoc(metaRef);
+        if (metaSnap.exists()) {
+          setKnownServices(metaSnap.data().knownNames || []);
         }
       } catch (error) {
         console.error("Erro ao buscar usuário:", error);
@@ -64,8 +81,22 @@ export function EditUser() {
         role: formData.role,
         status: formData.status,
         blockedReason: formData.status === 'blocked' ? formData.blockedReason : '',
-        photons: Number(formData.photons)
+        photons: Number(formData.photons),
+        services: services.filter(s => s.name.trim() !== '') // Salva apenas serviços com nome
       });
+
+      // Atualizar lista global de nomes de serviços (autocomplete)
+      const newNames = services.map(s => s.name.trim()).filter(name => name !== '' && !knownServices.includes(name));
+      if (newNames.length > 0) {
+        const updatedKnownNames = [...new Set([...knownServices, ...newNames])];
+        const metaRef = doc(db, 'metadata', 'services');
+        await updateDoc(metaRef, { knownNames: updatedKnownNames }).catch(async () => {
+          // Se o documento não existir, tenta criar (embora o ideal seja via console ou script inicial)
+          const { setDoc } = await import('firebase/firestore');
+          await setDoc(metaRef, { knownNames: updatedKnownNames });
+        });
+        setKnownServices(updatedKnownNames);
+      }
       
       setMessage({ type: 'success', text: 'Parâmetros atualizados no campo quântico!' });
       setTimeout(() => setMessage(null), 3000);
@@ -75,6 +106,20 @@ export function EditUser() {
     } finally {
       setSaving(false);
     }
+  };
+
+  const addServiceRow = () => {
+    setServices([...services, { name: '', url: '', isActive: true }]);
+  };
+
+  const removeServiceRow = (index: number) => {
+    setServices(services.filter((_, i) => i !== index));
+  };
+
+  const updateService = (index: number, field: keyof UserService, value: any) => {
+    const newServices = [...services];
+    newServices[index] = { ...newServices[index], [field]: value };
+    setServices(newServices);
   };
 
   if (loading) {
@@ -127,6 +172,91 @@ export function EditUser() {
               </motion.div>
             )}
           </AnimatePresence>
+
+          {/* Gestão de Serviços */}
+          <div className="space-y-4 pt-6 border-t border-white/5">
+            <div className="flex justify-between items-center mb-2">
+              <label className="text-xs font-black uppercase tracking-widest text-secondary">Serviços Adquiridos</label>
+              <button
+                type="button"
+                onClick={addServiceRow}
+                className="flex items-center gap-1 text-[10px] font-black uppercase bg-secondary/20 text-secondary px-3 py-1.5 rounded-lg hover:bg-secondary/30 transition-all"
+              >
+                <Plus size={14} /> Adicionar Linha
+              </button>
+            </div>
+
+            <div className="overflow-x-auto bg-black/20 rounded-2xl border border-gray-800">
+              <table className="w-full text-left text-sm border-collapse">
+                <thead>
+                  <tr className="border-b border-gray-800 bg-white/5 text-[10px] font-black uppercase tracking-widest text-text-secondary">
+                    <th className="px-4 py-3">Serviço</th>
+                    <th className="px-4 py-3">Link de Acesso</th>
+                    <th className="px-4 py-3 text-center w-20">Ativo</th>
+                    <th className="px-4 py-3 text-center w-12"></th>
+                  </tr>
+                </thead>
+                <tbody className="divide-y divide-gray-800/50">
+                  {services.map((service, index) => (
+                    <tr key={index} className="hover:bg-white/[0.02] transition-colors">
+                      <td className="px-2 py-2">
+                        <input
+                          list="known-services"
+                          value={service.name}
+                          onChange={(e) => updateService(index, 'name', e.target.value)}
+                          placeholder="Ex: Mentoria"
+                          className="w-full bg-transparent border-none focus:ring-0 text-text-primary placeholder:text-gray-700 text-sm focus:outline-none"
+                        />
+                        <datalist id="known-services">
+                          {knownServices.map(name => <option key={name} value={name} />)}
+                        </datalist>
+                      </td>
+                      <td className="px-2 py-2">
+                        <div className="flex items-center gap-2">
+                          <input
+                            type="text"
+                            value={service.url}
+                            onChange={(e) => updateService(index, 'url', e.target.value)}
+                            placeholder="https://..."
+                            className="w-full bg-transparent border-none focus:ring-0 text-secondary text-xs font-mono focus:outline-none"
+                          />
+                          {service.url && (
+                            <a href={service.url} target="_blank" rel="noreferrer" className="text-gray-600 hover:text-white shrink-0">
+                              <ExternalLink size={14} />
+                            </a>
+                          )}
+                        </div>
+                      </td>
+                      <td className="px-2 py-2 text-center">
+                        <input
+                          type="checkbox"
+                          checked={service.isActive}
+                          onChange={(e) => updateService(index, 'isActive', e.target.checked)}
+                          className="w-5 h-5 rounded bg-black border-gray-700 text-secondary focus:ring-secondary"
+                        />
+                      </td>
+                      <td className="px-2 py-2 text-center">
+                        <button
+                          type="button"
+                          onClick={() => removeServiceRow(index)}
+                          className="text-gray-600 hover:text-red-500 transition-colors"
+                        >
+                          <Trash2 size={16} />
+                        </button>
+                      </td>
+                    </tr>
+                  ))}
+                  {services.length === 0 && (
+                    <tr>
+                      <td colSpan={4} className="px-4 py-8 text-center text-text-secondary text-xs italic opacity-50">
+                        Nenhum serviço atrelado a este viajante.
+                      </td>
+                    </tr>
+                  )}
+                </tbody>
+              </table>
+            </div>
+          </div>
 
           {/* Dados Básicos */}
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">

@@ -9,6 +9,11 @@ export interface AuthUser extends User {
   role?: 'user' | 'moderator' | 'admin';
   status?: 'active' | 'blocked';
   blockedReason?: string;
+  services?: {
+    name: string;
+    url: string;
+    isActive: boolean;
+  }[];
 }
 
 interface AuthContextType {
