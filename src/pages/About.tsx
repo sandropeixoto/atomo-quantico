@@ -8,28 +8,28 @@ export function About() {
       icon: <Users size={24} />,
       description: 'Participe da nossa comunidade e troque experiências de gratidão.',
       color: 'bg-emerald-500',
-      link: '#'
+      link: 'https://chat.whatsapp.com/KOllIdR1uvABKsUvicyJcJ'
     },
     {
       name: 'Lista de Transmissão',
       icon: <Bell size={24} />,
       description: 'Receba insights e lembretes diários diretamente no seu celular.',
       color: 'bg-blue-500',
-      link: '#'
+      link: 'https://whatsapp.com/channel/0029VaCeG5LKgsNljHG89L1v'
     },
     {
       name: 'Canal no YouTube',
       icon: <Youtube size={24} />,
       description: 'Vídeos sobre física quântica, gratidão e evolução da consciência.',
       color: 'bg-red-600',
-      link: '#'
+      link: 'https://www.youtube.com/atomoquantico'
     },
     {
       name: 'Grupo Telegram',
       icon: <Send size={24} />,
       description: 'Conteúdos exclusivos e discussões aprofundadas sobre o projeto.',
       color: 'bg-sky-500',
-      link: '#'
+      link: 'https://t.me/grupoatomoquantico'
     }
   ];
 
