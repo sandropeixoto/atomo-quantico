@@ -90,11 +90,8 @@ export function EditUser() {
       if (newNames.length > 0) {
         const updatedKnownNames = [...new Set([...knownServices, ...newNames])];
         const metaRef = doc(db, 'metadata', 'services');
-        await updateDoc(metaRef, { knownNames: updatedKnownNames }).catch(async () => {
-          // Se o documento não existir, tenta criar (embora o ideal seja via console ou script inicial)
-          const { setDoc } = await import('firebase/firestore');
-          await setDoc(metaRef, { knownNames: updatedKnownNames });
-        });
+        const { setDoc } = await import('firebase/firestore');
+        await setDoc(metaRef, { knownNames: updatedKnownNames }, { merge: true });
         setKnownServices(updatedKnownNames);
       }
       

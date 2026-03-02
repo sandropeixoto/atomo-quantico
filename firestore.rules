@@ -25,24 +25,16 @@ service cloud.firestore {
     }
 
     match /entries/{entryId} {
-      // Qualquer um pode ler posts públicos (ativos ou ocultos para mostrar o aviso).
       allow read: if resource.data.isPublic == true || (isSignedIn() && request.auth.uid == resource.data.authorId);
       
-      // Apenas usuários não bloqueados podem criar posts.
       allow create: if isSignedIn() && isNotBlocked() 
-                    && request.auth.uid == request.resource.data.authorId
-                    && request.resource.data.likesCount == 0
-                    && request.resource.data.commentsCount == 0;
+                    && request.auth.uid == request.resource.data.authorId;
       
-      // Autores podem atualizar se não estiverem bloqueados.
-      // Moderadores podem atualizar campos de status e moderação.
       allow update: if isSignedIn() && (
-        (request.auth.uid == resource.data.authorId && isNotBlocked() && !request.resource.data.diff(resource.data).affectedKeys().hasAny(['status', 'moderationReason', 'moderatedBy'])) ||
-        (isModerator() && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['status', 'moderationReason', 'moderatedBy'])) ||
-        (request.resource.data.diff(resource.data).affectedKeys().hasOnly(['likesCount', 'commentsCount']) && isNotBlocked())
+        (request.auth.uid == resource.data.authorId && isNotBlocked()) ||
+        isModerator()
       );
 
-      // Autores ou Moderadores podem deletar.
       allow delete: if isSignedIn() && (request.auth.uid == resource.data.authorId || isModerator());
 
       match /likes/{userId} {
@@ -60,14 +52,18 @@ service cloud.firestore {
 
     match /users/{userId} {
       allow read: if true;
-      
-      // Apenas o próprio usuário pode editar dados básicos.
-      // Apenas Admins podem alterar role e status de bloqueio.
       allow create: if isSignedIn() && request.auth.uid == userId;
+      // Admin pode atualizar qualquer campo. Usuário pode atualizar seus dados básicos (exceto role/status).
       allow update: if isSignedIn() && (
-        (request.auth.uid == userId && !request.resource.data.diff(resource.data).affectedKeys().hasAny(['role', 'status', 'blockedReason'])) ||
-        (isAdmin() && request.resource.data.diff(resource.data).affectedKeys().hasAny(['role', 'status', 'blockedReason']))
+        isAdmin() || 
+        (request.auth.uid == userId && !request.resource.data.diff(resource.data).affectedKeys().hasAny(['role', 'status', 'blockedReason', 'services']))
       );
+    }
+
+    // Regras para Metadados (Autocompletar de Serviços)
+    match /metadata/{document} {
+      allow read: if isSignedIn();
+      allow write: if isAdmin();
     }
   }
 }
