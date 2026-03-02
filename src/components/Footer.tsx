@@ -13,8 +13,8 @@ export function Footer() {
   ];
 
   return (
-    <footer className="bg-primary sticky bottom-0 w-full pb-[env(safe-area-inset-bottom)]">
-      <nav className="flex justify-around items-center h-16">
+    <footer className="bg-primary sticky bottom-0 w-full border-t border-white/5 shadow-[0_-4px_20px_rgba(0,0,0,0.3)]">
+      <nav className="flex justify-around items-center min-h-[4.5rem] pb-[calc(env(safe-area-inset-bottom)+0.5rem)]">
         {navItems.map((item) => {
           const isActive = location.pathname === item.href;
           return (
