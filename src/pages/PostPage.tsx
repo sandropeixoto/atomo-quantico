@@ -26,6 +26,8 @@ interface Comment {
   authorId: string;
   timestamp: { seconds: number; };
   authorName?: string;
+  status?: 'active' | 'hidden' | 'removed';
+  moderationReason?: string;
 }
 
 const PostPage = () => {
@@ -41,6 +43,7 @@ const PostPage = () => {
   const [isLiking, setIsLiking] = useState(false);
   const [showReward, setShowReward] = useState(false);
   const [isModModalOpen, setIsModModalOpen] = useState(false);
+  const [selectedComment, setSelectedComment] = useState<Comment | null>(null);
 
   const fetchPostAndComments = async () => {
     if (!id) return;
@@ -180,6 +183,32 @@ const PostPage = () => {
     }
   };
 
+  const handleModerateComment = async (data: { status: 'active' | 'hidden' | 'removed'; reason: string; blockUser: boolean }) => {
+    if (!selectedComment || !user || !id) return;
+
+    try {
+      const commentRef = doc(db, 'entries', id, 'comments', selectedComment.id);
+      await updateDoc(commentRef, {
+        status: data.status,
+        moderationReason: data.reason,
+        moderatedBy: user.uid
+      });
+
+      if (data.blockUser) {
+        const authorRef = doc(db, 'users', selectedComment.authorId);
+        await updateDoc(authorRef, {
+          status: 'blocked',
+          blockedReason: data.reason
+        });
+      }
+
+      setComments(prev => prev.map(c => c.id === selectedComment.id ? { ...c, status: data.status, moderationReason: data.reason } : c));
+      setSelectedComment(null);
+    } catch (e) {
+      console.error("Erro na moderação do comentário:", e);
+    }
+  };
+
   if (!post) {
     return <div className="text-center py-20"><motion.div animate={{ rotate: 360 }} transition={{ repeat: Infinity, duration: 1 }} className="inline-block">⚛️</motion.div></div>;
   }
@@ -198,6 +227,17 @@ const PostPage = () => {
         authorName={post.authorName || 'Anônimo'}
         currentStatus={post.status}
       />
+      
+      {selectedComment && (
+        <ModerationModal
+          isOpen={!!selectedComment}
+          onClose={() => setSelectedComment(null)}
+          onConfirm={handleModerateComment}
+          targetType="comment"
+          authorName={selectedComment.authorName || 'Anônimo'}
+          currentStatus={selectedComment.status}
+        />
+      )}
       {/* Botão Voltar */}
       <button 
         onClick={() => navigate(-1)} 
@@ -309,22 +349,47 @@ const PostPage = () => {
 
       <div className="mt-8 space-y-0 border-t border-gray-800">
         <h2 className="text-xl font-bold text-text-primary p-4">Comentários</h2>
-        {comments.map(comment => (
-          <div key={comment.id} className="p-4 border-b border-gray-800 hover:bg-white/5 transition-colors">
-            <div className="flex items-start space-x-3">
-              <div className="bg-gray-700 p-1.5 rounded-full mt-1">
-                <User size={16} />
-              </div>
-              <div className="flex-1">
-                <div className="flex items-center space-x-2">
-                  <span className="font-bold text-text-primary text-sm">{comment.authorName}</span>
-                  <span className="text-xs text-gray-500">· {new Date(comment.timestamp.seconds * 1000).toLocaleDateString('pt-BR')}</span>
+        {comments.map(comment => {
+          const isCommentHidden = comment.status === 'hidden';
+          
+          return (
+            <div key={comment.id} className={`p-4 border-b border-gray-800 hover:bg-white/5 transition-colors ${isCommentHidden ? 'bg-red-950/5' : ''}`}>
+              <div className="flex items-start justify-between">
+                <div className="flex items-start space-x-3">
+                  <div className="bg-gray-700 p-1.5 rounded-full mt-1">
+                    <User size={16} />
+                  </div>
+                  <div className="flex-1">
+                    <div className="flex items-center space-x-2">
+                      <span className="font-bold text-text-primary text-sm">{comment.authorName}</span>
+                      <span className="text-xs text-gray-500">· {new Date(comment.timestamp.seconds * 1000).toLocaleDateString('pt-BR')}</span>
+                    </div>
+                    
+                    {isCommentHidden && !isModerator ? (
+                      <p className="text-red-400/60 text-sm italic mt-1 flex items-center gap-2">
+                        <EyeOff size={14} /> Comentário oculto por moderação.
+                      </p>
+                    ) : (
+                      <p className={`mt-1 ${isCommentHidden ? 'text-red-200/40 italic' : 'text-text-secondary'}`}>
+                        {isCommentHidden && <span className="text-[10px] font-black uppercase bg-red-500 text-white px-1.5 py-0.5 rounded mr-2">Oculto</span>}
+                        {comment.text}
+                      </p>
+                    )}
+                  </div>
                 </div>
-                <p className="text-text-secondary mt-1">{comment.text}</p>
+
+                {isModerator && (
+                  <button 
+                    onClick={() => setSelectedComment(comment)}
+                    className={`p-2 rounded-lg transition-colors ${isCommentHidden ? 'bg-red-500 text-white' : 'text-gray-600 hover:bg-secondary hover:text-white'}`}
+                  >
+                    <ShieldAlert size={14} />
+                  </button>
+                )}
               </div>
             </div>
-          </div>
-        ))}
+          );
+        })}
         {comments.length === 0 && (
           <p className="text-text-secondary text-center py-8">Ainda não há respostas. Seja o primeiro!</p>
         )}
