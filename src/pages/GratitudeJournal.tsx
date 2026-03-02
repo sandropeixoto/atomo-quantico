@@ -4,7 +4,7 @@ import { collection, addDoc, getDocs, query, where, orderBy, deleteDoc, doc } fr
 import { db } from '../services/firebase';
 import { useAuth } from '../contexts/AuthContext';
 import { useUserProgressStore } from '../stores/userProgressStore';
-import { PenSquare, Trash2 } from 'lucide-react';
+import { Trash2, User, Send } from 'lucide-react';
 import { ConfirmationModal } from '../components/ConfirmationModal';
 
 interface JournalEntry {
@@ -40,13 +40,13 @@ const GratitudeJournal = () => {
     }
   }, [user]);
 
-  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
-    e.preventDefault();
+  const handleSubmit = async (e?: React.FormEvent) => {
+    if (e) e.preventDefault();
     if (entry.trim() === '' || !user) return;
 
     try {
       await addDoc(collection(db, 'entries'), {
-        text: entry,
+        text: entry.trim(),
         timestamp: new Date(),
         authorId: user.uid,
         isPublic: isPublic,
@@ -118,38 +118,47 @@ const GratitudeJournal = () => {
           </p>
         </div>
       ) : (
-        <div className="bg-background rounded-2xl shadow-lg p-8 mb-12">
-          <form onSubmit={handleSubmit}>
-            <h2 className="text-2xl font-semibold text-text-primary mb-4">Pelo que você é grato hoje?</h2>
-            <textarea
-              className="w-full p-4 bg-primary text-text-primary border border-gray-700 rounded-lg focus:ring-2 focus:ring-secondary focus:outline-none transition-shadow placeholder:text-gray-400"
-              rows={5}
-              placeholder="Comece a escrever..."
-              value={entry}
-              onChange={(e: React.ChangeEvent<HTMLTextAreaElement>) => setEntry(e.target.value)}
-            />
-
-            <div className="flex items-center mt-4">
-              <input
-                type="checkbox"
-                id="isPublic"
-                checked={isPublic}
-                onChange={(e) => setIsPublic(e.target.checked)}
-                className="h-4 w-4 text-secondary focus:ring-secondary border-gray-300 rounded"
-              />
-              <label htmlFor="isPublic" className="ml-2 block text-sm text-text-secondary">
-                Tornar esta entrada pública
-              </label>
+        <div className="bg-primary rounded-2xl p-5 mb-12 border border-gray-800 shadow-lg">
+          <div className="flex items-start space-x-4">
+            <div className="bg-secondary/20 p-2.5 rounded-full hidden sm:block shrink-0 mt-1">
+              <User className="text-secondary" size={24} />
             </div>
-
-            <button
-              type="submit"
-              className="bg-secondary text-text-primary font-semibold py-3 px-6 rounded-lg hover:opacity-90 transition-opacity mt-4 inline-flex items-center space-x-2"
-            >
-              <PenSquare size={20} />
-              <span>Registrar Gratidão</span>
-            </button>
-          </form>
+            <div className="flex-1">
+              <textarea
+                className="w-full bg-transparent text-text-primary text-xl focus:outline-none resize-none placeholder:text-gray-600 min-h-[120px] leading-relaxed"
+                placeholder="Pelo que você é grato hoje?"
+                value={entry}
+                onChange={(e) => setEntry(e.target.value)}
+              />
+              
+              <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mt-4 pt-4 border-t border-gray-800 gap-4">
+                <div className="flex items-center gap-4">
+                  <div className="text-xs text-gray-500 font-medium">Sua gratidão ganha +10 Fótons ⚛️</div>
+                  <div className="flex items-center">
+                    <input
+                      type="checkbox"
+                      id="isPublic"
+                      checked={isPublic}
+                      onChange={(e) => setIsPublic(e.target.checked)}
+                      className="h-4 w-4 text-secondary focus:ring-secondary border-gray-700 bg-gray-900 rounded transition-all"
+                    />
+                    <label htmlFor="isPublic" className="ml-2 block text-xs text-text-secondary font-medium cursor-pointer">
+                      Tornar pública
+                    </label>
+                  </div>
+                </div>
+                
+                <button
+                  onClick={() => handleSubmit()}
+                  disabled={!entry.trim()}
+                  className="w-full sm:w-auto bg-secondary text-text-primary font-bold py-2.5 px-8 rounded-full hover:opacity-90 transition-all disabled:opacity-50 flex items-center justify-center gap-2 shadow-lg shadow-secondary/10 active:scale-95"
+                >
+                  <Send size={18} />
+                  <span>Gratidão</span>
+                </button>
+              </div>
+            </div>
+          </div>
         </div>
       )}
 
